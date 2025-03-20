@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Start your development with Abanoub Magdy landing page.">
+    <meta name="author" content="Devcrud">
+    <title>Abanoub Magdy Landing page | Free Bootstrap 4.3.x landing page</title>
+    <!-- font icons -->
+    <link rel="stylesheet" href="../../assets/vendors/themify-icons/css/themify-icons.css">
+    <!-- Bootstrap + Meyawo main styles -->
+    <link rel="stylesheet" href="../../assets/css/meyawo.css">
+    <!-- Add this in the head section -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+</head>
+
+<body data-spy="scroll" data-target=".navbar" data-offset="40" id="home">
+
+    <!-- Page Navbar -->
+    <nav class="custom-navbar affix" data-offset-top="20">
+        <div class="container">
+            <a class="logo" href="../../blog.html">Abanoub Magdy - Blogs</a>
+            <!-- <a class="resume-link" href="index.html" target="_blank"> - Resume</a> -->
+
+            <ul class="nav">
+                <li class="item">
+                    <a class="link" href="../../blog.html">Home</a>
+                </li>
+                <li class="item">
+                    <a class="link" href="../../blog.html#blog">Blog</a>
+                </li>
+                <li class="item">
+                    <a class="link" href="../../index.html">Resume</a>
+                </li>
+                <!-- <li class="item ml-md-3">
+                    <a href="components.html" class="btn btn-primary">Components</a>
+                </li> -->
+            </ul>
+            <a href="javascript:void(0)" id="nav-toggle" class="hamburger hamburger--elastic">
+                <div class="hamburger-box">
+                    <div class="hamburger-inner"></div>
+                </div>
+            </a>
+        </div>
+    </nav><!-- End of Page Navbar -->
+
+
+    <div class="blog-hero">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 mx-auto text-center">
+                    <h1 class="display-4 mb-3">Making Entity Framework Fast</h1>
+                    <p class="lead">Optimizing Entity Framework: Practical Techniques for Faster Applications</p>
+                    <div class="blog-meta mt-4">
+                        <span><i class="ti-calendar"></i> March 2025</span>
+                        <span class="mx-3">|</span>
+                        <span><i class="ti-timer"></i> 15 min read</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="section">
+        <div class="container">
+            <div class="col-lg-8 mx-auto">
+                <!-- 1. Common Performance Issues -->
+                <div class="concept-box">
+                    <h2>1. Common Performance Problems</h2>
+                    <p>Entity Framework makes database access easier, but can be slow if not used correctly. Let's
+                        examine common issues and their solutions.</p>
+
+                    <h3>The N+1 Query Problem</h3>
+                    <p>This is the most common performance issue where you load a list of items and then make separate
+                        database calls for each item's related data. This can lead to hundreds of unnecessary database
+                        queries.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">N+1 Problem Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Bad Example - Will make many database calls ❌
+// If you have 100 orders, this makes 101 database calls!
+var orders = await context.Orders.ToListAsync();
+foreach (var order in orders)
+{
+    // This makes one extra query per order!
+    var customer = await context.Customers.FindAsync(order.CustomerId);
+    // Do something with customer...
+}
+
+// Good Example - Only one database call ✅
+var orders = await context.Orders
+    .Include(o => o.Customer)
+    .ToListAsync();
+// All customers are already loaded with their orders
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- 2. Database Indices -->
+                <div class="concept-box">
+                    <h2>2. Making Searches Faster with Indices</h2>
+                    <p>Think of an index like a book's table of contents - it helps find things quickly! Without
+                        indices, the database must scan every row to find what you're looking for.</p>
+                    <p>Adding the right indices can improve query performance by 10-1000x depending on your data size.
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Adding Database Indices</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// In your DbContext configuration
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    // Simple index for single column searches
+    modelBuilder.Entity<Order>()
+        .HasIndex(o => o.CustomerId)
+        .HasName("IX_Orders_CustomerId");
+    
+    // Composite index for filtering by multiple columns
+    modelBuilder.Entity<Order>()
+        .HasIndex(o => new { o.OrderDate, o.Status })
+        .HasName("IX_Orders_OrderDate_Status");
+        
+    // Unique index to enforce business rules
+    modelBuilder.Entity<Customer>()
+        .HasIndex(c => c.Email)
+        .IsUnique()
+        .HasName("IX_Customers_Email_Unique");
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- 3. Compiled Queries -->
+                <div class="concept-box">
+                    <h2>3. Compiled Queries for Better Speed</h2>
+                    <p>Every time you run a LINQ query, Entity Framework must translate it to SQL. Compiled queries do
+                        this translation once and reuse it, making subsequent calls much faster (up to 30% improvement).
+                    </p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Compiled Query Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Define a compiled query (do this once, typically as a static field)
+private static readonly Func<ApplicationDbContext, int, Task<Customer>> 
+    GetCustomerByIdQuery = EF.CompileAsyncQuery(
+        (ApplicationDbContext dbContext, int customerId) =>
+            dbContext.Customers
+                .Include(c => c.Orders)
+                .FirstOrDefault(c => c.Id == customerId)
+    );
+
+// Use the compiled query in your service/repository
+public async Task<Customer> GetCustomerAsync(int customerId)
+{
+    using (var context = new ApplicationDbContext(_options))
+    {
+        return await GetCustomerByIdQuery(context, customerId);
+    }
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- 4. Batch Operations -->
+                <div class="concept-box">
+                    <h2>4. Batch Operations for Multiple Items</h2>
+                    <p>Each call to SaveChanges() creates a separate database transaction. When working with multiple
+                        records, batch your operations to reduce database round-trips.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Batch Operations Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Bad way - One at a time ❌
+// This is very inefficient for multiple items
+foreach (var order in orders)
+{
+    context.Orders.Add(order);
+    await context.SaveChangesAsync(); // Separate transaction each time!
+}
+
+// Good way - All at once ✅
+await using (var transaction = await context.Database.BeginTransactionAsync())
+{
+    try
+    {
+        context.Orders.AddRange(orders);
+        await context.SaveChangesAsync(); // Single transaction
+        await transaction.CommitAsync();
+    }
+    catch (Exception)
+    {
+        await transaction.RollbackAsync();
+        throw;
+    }
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- 5. Loading Related Data -->
+                <div class="concept-box">
+                    <h2>5. Smart Ways to Load Related Data</h2>
+                    <p>Entity Framework offers three ways to load related data. Choosing the right one can dramatically
+                        improve performance.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Loading Strategies</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// 1. Eager Loading - Load everything at once
+// Best when you know you'll need the related data
+var orders = await context.Orders
+    .Include(o => o.Customer)
+    .Include(o => o.OrderItems)
+        .ThenInclude(i => i.Product) // Load nested relations
+    .ToListAsync();
+
+// 2. Lazy Loading - Load when accessed
+// First, enable lazy loading in your DbContext
+protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+{
+    optionsBuilder.UseLazyLoadingProxies();
+}
+
+// Then use virtual for navigation properties
+public class Order
+{
+    public int Id { get; set; }
+    public virtual Customer Customer { get; set; } // Will load when accessed
+    public virtual ICollection<OrderItem> OrderItems { get; set; }
+}
+
+// 3. Explicit Loading - Load on demand
+var order = await context.Orders.FirstAsync(o => o.Id == orderId);
+// Later, if you need related data:
+if (someCondition)
+{
+    await context.Entry(order)
+        .Reference(o => o.Customer)
+        .LoadAsync();
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- 6. Untracked Queries -->
+                <div class="concept-box">
+                    <h2>6. Faster Queries with No Tracking</h2>
+                    <p>Entity Framework tracks changes to entities by default, which consumes memory and CPU. For
+                        read-only operations, disable tracking to improve performance by up to 30%.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">No Tracking Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Normal query - Slower but tracks changes
+var orders = await context.Orders
+    .Where(o => o.Status == OrderStatus.Pending)
+    .ToListAsync();
+// Can modify these orders and save changes
+
+// No tracking query - Much faster for read-only data
+var orders = await context.Orders
+    .AsNoTracking()
+    .Where(o => o.Status == OrderStatus.Pending)
+    .ToListAsync();
+// Cannot save changes to these orders
+
+// Even better: Projection query with no tracking
+var orderDtos = await context.Orders
+    .AsNoTracking()
+    .Where(o => o.Status == OrderStatus.Pending)
+    .Select(o => new OrderDto
+    {
+        Id = o.Id,
+        CustomerName = o.Customer.Name,
+        OrderDate = o.OrderDate,
+        Total = o.Total
+    })
+    .ToListAsync();
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- 7. Concurrency -->
+                <div class="concept-box">
+                    <h2>7. Handling Multiple Users</h2>
+                    <p>When multiple users update the same data simultaneously, you need a strategy to prevent data
+                        corruption. Entity Framework supports optimistic concurrency control.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Concurrency Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// 1. Add concurrency token to your entity
+public class Order
+{
+    public int Id { get; set; }
+    
+    [Timestamp] // SQL Server specific
+    public byte[] RowVersion { get; set; }
+    
+    public string Status { get; set; }
+    public decimal Total { get; set; }
+}
+
+// 2. Handle concurrency conflicts
+public async Task UpdateOrderAsync(Order order)
+{
+    try
+    {
+        context.Orders.Update(order);
+        await context.SaveChangesAsync();
+    }
+    catch (DbUpdateConcurrencyException ex)
+    {
+        // Get the current values from the database
+        var entry = ex.Entries.Single();
+        var databaseValues = await entry.GetDatabaseValuesAsync();
+        
+        if (databaseValues == null)
+        {
+            // The entity was deleted by another user
+            throw new Exception("The order was deleted by another user.");
+        }
+        
+        // Option 1: Keep your changes and overwrite database
+        entry.OriginalValues.SetValues(databaseValues);
+        await context.SaveChangesAsync();
+        
+        // Option 2: Show conflict to user
+        var databaseOrder = databaseValues.ToObject() as Order;
+        // Compare order with databaseOrder and resolve conflicts
+    }
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="section-divider"></div>
+                <div class="summary-box">
+                    <h2>Quick Tips to Remember 🌟</h2>
+                    <ul>
+                        <li>✅ Use Include() to avoid N+1 queries</li>
+                        <li>✅ Add indexes for frequently searched columns</li>
+                        <li>✅ Use compiled queries for repeated operations</li>
+                        <li>✅ Batch your changes instead of saving one by one</li>
+                        <li>✅ Choose the right loading strategy for related data</li>
+                        <li>✅ Use AsNoTracking() for read-only queries</li>
+                        <li>✅ Handle concurrency based on your needs</li>
+                    </ul>
+                </div>
+
+
+                <!-- Common Mistakes -->
+                <div class="section-divider"></div>
+                <div class="warning-box">
+                    <h3>Watch Out For These! ⚠️</h3>
+                    <ul class="simple-list">
+                        <li>❌ Don't load all data when you only need some</li>
+                        <li>❌ Don't save changes one by one</li>
+                        <li>❌ Don't forget to add indexes for searched fields</li>
+                        <li>❌ Don't track changes when just reading data</li>
+                        <li>❌ Don't use Entity Framework for bulk operations on millions of records</li>
+                    </ul>
+                </div>
+
+                <!-- Real-World Examples -->
+                <div class="section-divider"></div>
+                <div class="example-box">
+                    <h3>Real-World Performance Improvements 📈</h3>
+                    <div class="case-study">
+                        <h4>Case Study: E-commerce Order Processing</h4>
+                        <p><strong>Problem:</strong> Loading order details page was taking 3+ seconds</p>
+                        <p><strong>Solution:</strong> Applied these optimizations:</p>
+                        <ul>
+                            <li>Added indexes to OrderDate and CustomerId</li>
+                            <li>Used projection queries to load only needed fields</li>
+                            <li>Disabled tracking for read-only dashboard</li>
+                        </ul>
+                        <p><strong>Result:</strong> Page load time reduced to 300ms (10x improvement)</p>
+                    </div>
+                </div>
+
+                <!-- Quick Reference -->
+                <div class="section-divider"></div>
+                <div class="reference-box">
+                    <h3>Quick Reference: Performance Checklist 📋</h3>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Problem</th>
+                                <th>Solution</th>
+                                <th>When to Use</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Slow queries</td>
+                                <td>Add database indexes</td>
+                                <td>For frequently searched columns</td>
+                            </tr>
+                            <tr>
+                                <td>Multiple database calls</td>
+                                <td>Use Include() for related data</td>
+                                <td>When you need related entities</td>
+                            </tr>
+                            <tr>
+                                <td>Repeated query compilation</td>
+                                <td>Use compiled queries</td>
+                                <td>For frequently executed queries</td>
+                            </tr>
+                            <tr>
+                                <td>Slow bulk operations</td>
+                                <td>Use AddRange() and SaveChanges once</td>
+                                <td>When adding multiple entities</td>
+                            </tr>
+                            <tr>
+                                <td>Memory usage too high</td>
+                                <td>Use AsNoTracking() and projections</td>
+                                <td>For read-only operations</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Advanced Tips -->
+                <div class="section-divider"></div>
+                <div class="advanced-box">
+                    <h3>Advanced Performance Tips 🔥</h3>
+                    <div class="tip-item">
+                        <h4>1. Use SQL for Complex Reports</h4>
+                        <p>For complex reporting queries, consider using raw SQL or stored procedures:</p>
+                        <div class="code-simple">
+                            var salesReport = await context.SalesReports
+                            .FromSqlRaw("EXEC GetSalesReport @p0, @p1", startDate, endDate)
+                            .ToListAsync();
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tools and Resources -->
+                <div class="section-divider"></div>
+                <div class="resources-box">
+                    <h3>Helpful Tools for Performance Tuning 🛠️</h3>
+                    <ul class="resource-list">
+                        <li>
+                            <strong>Entity Framework Profiler</strong> - Visualize and analyze EF queries
+                            <a href="https://entityframework-plus.net/" target="_blank">Learn More</a>
+                        </li>
+                        <li>
+                            <strong>MiniProfiler</strong> - Lightweight profiling for EF Core
+                            <a href="https://miniprofiler.com/" target="_blank">Learn More</a>
+                        </li>
+                        <li>
+                            <strong>BenchmarkDotNet</strong> - Measure performance improvements
+                            <a href="https://benchmarkdotnet.org/" target="_blank">Learn More</a>
+                        </li>
+                        <li>
+                            <strong>SQL Server Profiler</strong> - See actual SQL queries generated
+                            <a href="https://docs.microsoft.com/en-us/sql/tools/sql-server-profiler/sql-server-profiler"
+                                target="_blank">Learn More</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- FAQ Section -->
+                <div class="section-divider"></div>
+                <div class="faq-box">
+                    <h3>Frequently Asked Questions 🤔</h3>
+
+                    <div class="faq-item">
+                        <h4>Q: When should I use AsNoTracking()?</h4>
+                        <p>A: Use AsNoTracking() for any query where you don't need to update the data, such as
+                            displaying lists, reports, or read-only views. This can improve performance by 20-30%.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h4>Q: Is lazy loading bad for performance?</h4>
+                        <p>A: Lazy loading can cause the N+1 query problem if not used carefully. It's convenient during
+                            development but often better to use eager loading with Include() in production.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h4>Q: How many entities can Entity Framework handle efficiently?</h4>
+                        <p>A: Entity Framework works well with thousands of entities, but performance may degrade with
+                            tens of thousands. For operations on millions of records, consider using bulk extensions or
+                            direct SQL.</p>
+                    </div>
+                </div>
+
+                <!-- Before and After -->
+                <div class="section-divider"></div>
+                <div class="comparison-box">
+                    <h3>Before & After: Performance Improvements</h3>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="before-card">
+                                <h4>Before Optimization ⏱️</h4>
+                                <ul>
+                                    <li>Query execution: 2500ms</li>
+                                    <li>Memory usage: 250MB</li>
+                                    <li>Database calls: 120</li>
+                                </ul>
+                                <div class="code-simple">
+                                    var customers = context.Customers
+                                    .ToList();
+
+                                    foreach(var c in customers) {
+                                    var orders = context.Orders
+                                    .Where(o => o.CustomerId == c.Id)
+                                    .ToList();
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="after-card">
+                                <h4>After Optimization ⚡</h4>
+                                <ul>
+                                    <li>Query execution: 180ms</li>
+                                    <li>Memory usage: 45MB</li>
+                                    <li>Database calls: 1</li>
+                                </ul>
+                                <div class="code-simple">
+                                    var customers = context.Customers
+                                    .Include(c => c.Orders)
+                                    .AsNoTracking()
+                                    .ToList();
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- footer -->
+    <div class="container">
+        <footer class="footer">
+            <div class="social-links text-right m-auto ml-sm-auto">
+                <a href="https://drive.google.com/file/d/1HYu_dCcyu5KXcBOSugAkFz6fCRA66HlO/view?usp=drive_link"
+                    target="_blank" rel="noopener noreferrer" title="Download CV"><i class="ti-download"></i></a>
+                <a href="https://github.com/abanoubma" target="_blank" rel="noopener noreferrer" title="GitHub"><i
+                        class="ti-github"></i></a>
+                <a href="https://www.linkedin.com/in/abanoubmagdy/" target="_blank" rel="noopener noreferrer"
+                    title="LinkedIn"><i class="ti-linkedin"></i></a>
+                <a href="https://www.facebook.com/abanoubmagdy" target="_blank" rel="noopener noreferrer"
+                    title="Facebook"><i class="ti-facebook"></i></a>
+            </div>
+        </footer>
+    </div> <!-- end of page footer -->
+
+    <!-- core  -->
+    <script src="../../assets/vendors/jquery/jquery-3.4.1.js"></script>
+    <script src="../../assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+
+    <!-- bootstrap 3 affix -->
+    <script src="../../assets/vendors/bootstrap/bootstrap.affix.js"></script>
+
+    <!-- Meyawo js -->
+    <script src="../../assets/js/meyawo.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-csharp.min.js"></script>
+
+</body>
+
+</html>

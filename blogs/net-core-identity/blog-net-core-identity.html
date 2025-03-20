@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="ASP.NET Core Identity - Complete Interview Guide">
+    <meta name="author" content="Abanoub Magdy">
+    <title>ASP.NET Core Identity  | Abanoub Magdy</title>
+    <!-- font icons -->
+    <link rel="stylesheet" href="../../assets/vendors/themify-icons/css/themify-icons.css">
+    <!-- Bootstrap + Meyawo main styles -->
+    <link rel="stylesheet" href="../../assets/css/meyawo.css">
+    <!-- Add this in the head section -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+</head>
+
+<body data-spy="scroll" data-target=".navbar" data-offset="40" id="home">
+
+    <!-- Page Navbar -->
+    <nav class="custom-navbar affix" data-offset-top="20">
+        <div class="container">
+            <a class="logo" href="../../blog.html">Abanoub Magdy - Blogs</a>
+
+            <ul class="nav">
+                <li class="item">
+                    <a class="link" href="../../blog.html">Home</a>
+                </li>
+                <li class="item">
+                    <a class="link" href="../../blog.html#blog">Blog</a>
+                </li>
+                <li class="item">
+                    <a class="link" href="../../index.html">Resume</a>
+                </li>
+            </ul>
+            <a href="javascript:void(0)" id="nav-toggle" class="hamburger hamburger--elastic">
+                <div class="hamburger-box">
+                    <div class="hamburger-inner"></div>
+                </div>
+            </a>
+        </div>
+    </nav><!-- End of Page Navbar --> 
+
+
+    <div class="blog-hero">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 mx-auto text-center">
+                    <h1 class="display-4 mb-3">ASP.NET Core Identity</h1>
+                    <p class="lead"> Authentication & Authorization in .NET Core</p>
+                    <div class="blog-meta mt-4">
+                        <span><i class="ti-calendar"></i> March 2025</span>
+                        <span class="mx-3">|</span>
+                        <span><i class="ti-timer"></i> 20 min read</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="section">
+        <div class="container">
+            <div class="col-lg-8 mx-auto">
+                <!-- Introduction -->
+                <div class="concept-box">
+                    <h2>1. ASP.NET Core Identity Fundamentals</h2>
+                    <p>ASP.NET Core Identity is a membership system that adds login functionality to ASP.NET Core applications. It provides a framework for managing user accounts, roles, claims, tokens, password confirmation, and more.</p>
+
+                    <h3>Key Components</h3>
+                    <ul>
+                        <li><strong>IdentityUser</strong> - Represents a user in the identity system</li>
+                        <li><strong>IdentityRole</strong> - Represents a role (like Admin, User) in the system</li>
+                        <li><strong>UserManager</strong> - Provides APIs for managing users</li>
+                        <li><strong>RoleManager</strong> - Provides APIs for managing roles</li>
+                        <li><strong>SignInManager</strong> - Provides APIs for user sign in/out</li>
+                    </ul>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Basic Identity Setup in Program.cs</span>
+                        </div>
+                        <pre><code class="language-csharp">
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add Identity services
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => {
+    // Password settings
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = true;
+    
+    // Lockout settings
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
+// Configure cookie settings
+builder.Services.ConfigureApplicationCookie(options => {
+    options.Cookie.HttpOnly = true;
+    options.ExpireTimeSpan = TimeSpan.FromDays(7);
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.SlidingExpiration = true;
+});
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Authentication vs Authorization -->
+                <div class="concept-box">
+                    <h2>2. Authentication vs Authorization</h2>
+                    <p>A critical distinction that often appears in interviews:</p>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <h4>Authentication</h4>
+                                <p>The process of verifying <strong>who you are</strong>. Like showing your ID at airport security.</p>
+                                <ul>
+                                    <li>Login with username/password</li>
+                                    <li>OAuth/OpenID Connect</li>
+                                    <li>Windows Authentication</li>
+                                    <li>Two-factor authentication</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <h4>Authorization</h4>
+                                <p>The process of verifying <strong>what you can do</strong>. Like checking if your ticket allows entry to first class.</p>
+                                <ul>
+                                    <li>Role-based authorization</li>
+                                    <li>Claims-based authorization</li>
+                                    <li>Policy-based authorization</li>
+                                    <li>Resource-based authorization</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Authentication vs Authorization in Action</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Authentication example - Verifying identity
+public async Task<IActionResult> Login(LoginViewModel model)
+{
+    var result = await _signInManager.PasswordSignInAsync(
+        model.Email,
+        model.Password,
+        model.RememberMe,
+        lockoutOnFailure: true);
+        
+    if (result.Succeeded)
+    {
+        return RedirectToAction("Index", "Home");
+    }
+    // Handle failure...
+}
+
+// Authorization example - Controlling access
+[Authorize(Roles = "Admin")]  // Only Admin role can access
+public IActionResult AdminDashboard()
+{
+    return View();
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- User Management -->
+                <div class="concept-box">
+                    <h2>3. User Management</h2>
+                    <p>Understanding how to manage users is a core part of Identity interviews.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">User Management Examples</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Creating a new user
+public async Task<IActionResult> Register(RegisterViewModel model)
+{
+    if (ModelState.IsValid)
+    {
+        var user = new IdentityUser { UserName = model.Email, Email = model.Email };
+        var result = await _userManager.CreateAsync(user, model.Password);
+        
+        if (result.Succeeded)
+        {
+            // Add user to role
+            await _userManager.AddToRoleAsync(user, "User");
+            
+            // Sign in the user
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            return RedirectToAction("Index", "Home");
+        }
+        
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+    }
+    return View(model);
+}
+
+// Updating user information
+public async Task<IActionResult> UpdateProfile(UpdateProfileViewModel model)
+{
+    var user = await _userManager.GetUserAsync(User);
+    if (user == null)
+    {
+        return NotFound();
+    }
+
+    user.Email = model.Email;
+    user.PhoneNumber = model.PhoneNumber;
+    
+    var result = await _userManager.UpdateAsync(user);
+    // Process result...
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Role-Based Authorization -->
+                <div class="concept-box">
+                    <h2>4. Role-Based Authorization</h2>
+                    <p>Roles provide a way to group users and assign them specific permissions.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Role Management</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Creating roles
+public async Task CreateRoles()
+{
+    string[] roleNames = { "Admin", "Manager", "User" };
+    
+    foreach (var roleName in roleNames)
+    {
+        // Check if role exists
+        var roleExists = await _roleManager.RoleExistsAsync(roleName);
+        if (!roleExists)
+        {
+            // Create the role
+            await _roleManager.CreateAsync(new IdentityRole(roleName));
+        }
+    }
+}
+
+// Assigning user to role
+public async Task<IActionResult> AssignUserToRole(string userId, string roleName)
+{
+    var user = await _userManager.FindByIdAsync(userId);
+    if (user == null)
+    {
+        return NotFound();
+    }
+    
+    var result = await _userManager.AddToRoleAsync(user, roleName);
+    // Process result...
+}
+</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Authorizing with Roles</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Controller or action level authorization
+[Authorize(Roles = "Admin,Manager")]  // Allow access to Admin and Manager roles
+public class AdminController : Controller
+{
+    // Only accessible by users in Admin or Manager roles
+}
+
+// Fine-grained role check in code
+public async Task<IActionResult> EditUser(string id)
+{
+    var user = await _userManager.FindByIdAsync(id);
+    if (user == null)
+    {
+        return NotFound();
+    }
+    
+    // Check if current user is in Admin role
+    if (!await _userManager.IsInRoleAsync(user, "Admin"))
+    {
+        return Forbid();
+    }
+    
+    // Continue with edit logic
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Claims-Based Authorization -->
+                <div class="concept-box">
+                    <h2>5. Claims-Based Authorization</h2>
+                    <p>Claims provide more flexibility than roles by representing specific user attributes or permissions.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Working with Claims</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Adding claims to a user
+public async Task<IActionResult> AddUserClaims(string userId)
+{
+    var user = await _userManager.FindByIdAsync(userId);
+    if (user == null)
+    {
+        return NotFound();
+    }
+    
+    var claims = new List<Claim>
+    {
+        new Claim("DateOfBirth", "1990-01-01"),
+        new Claim("FullName", "John Smith"),
+        new Claim("Permission", "ManageUsers")
+    };
+    
+    var result = await _userManager.AddClaimsAsync(user, claims);
+    // Process result...
+}
+
+// Retrieving claims
+public async Task<IActionResult> GetUserClaims(string userId)
+{
+    var user = await _userManager.FindByIdAsync(userId);
+    if (user == null)
+    {
+        return NotFound();
+    }
+    
+    var claims = await _userManager.GetClaimsAsync(user);
+    // Use claims...
+}
+</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Authorizing with Claims</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Policy setup in Program.cs
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CanManageUsers", policy => 
+        policy.RequireClaim("Permission", "ManageUsers"));
+        
+    options.AddPolicy("AdminsOnly", policy =>
+        policy.RequireRole("Admin"));
+        
+    options.AddPolicy("Over18", policy =>
+        policy.RequireClaim("DateOfBirth", c => 
+        {
+            if (DateTime.TryParse(c, out var dob))
+            {
+                return DateTime.Now.Year - dob.Year >= 18;
+            }
+            return false;
+        }));
+});
+
+// Using policy in controller
+[Authorize(Policy = "CanManageUsers")]
+public IActionResult ManageUsers()
+{
+    return View();
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- External Login Providers -->
+                <div class="concept-box">
+                    <h2>6. External Authentication Providers</h2>
+                    <p>Integrating with external authentication providers like Google, Facebook, and Microsoft.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Configuring External Providers</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// In Program.cs
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+    })
+    .AddFacebook(options =>
+    {
+        options.AppId = configuration["Authentication:Facebook:AppId"];
+        options.AppSecret = configuration["Authentication:Facebook:AppSecret"];
+    })
+    .AddMicrosoftAccount(options =>
+    {
+        options.ClientId = configuration["Authentication:Microsoft:ClientId"];
+        options.ClientSecret = configuration["Authentication:Microsoft:ClientSecret"];
+    });
+
+// In appsettings.json
+"Authentication": {
+    "Google": {
+        "ClientId": "your-client-id",
+        "ClientSecret": "your-client-secret"
+    },
+    "Facebook": {
+        "AppId": "your-app-id",
+        "AppSecret": "your-app-secret"
+    },
+    "Microsoft": {
+        "ClientId": "your-client-id",
+        "ClientSecret": "your-client-secret"
+    }
+}
+</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">External Login Controller</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Handling external login
+[HttpPost]
+[AllowAnonymous]
+public IActionResult ExternalLogin(string provider, string returnUrl = null)
+{
+    var redirectUrl = Url.Action("ExternalLoginCallback", "Account", 
+        new { ReturnUrl = returnUrl });
+        
+    var properties = _signInManager.ConfigureExternalAuthenticationProperties(
+        provider, redirectUrl);
+        
+    return Challenge(properties, provider);
+}
+
+// External login callback
+[HttpGet]
+[AllowAnonymous]
+public async Task<IActionResult> ExternalLoginCallback(
+    string returnUrl = null, string remoteError = null)
+{
+    if (remoteError != null)
+    {
+        // Handle error
+        return RedirectToAction("Login");
+    }
+    
+    var info = await _signInManager.GetExternalLoginInfoAsync();
+    if (info == null)
+    {
+        return RedirectToAction("Login");
+    }
+    
+    // Sign in with the external login provider
+    var result = await _signInManager.ExternalLoginSignInAsync(
+        info.LoginProvider, info.ProviderKey, 
+        isPersistent: false, bypassTwoFactor: true);
+        
+    if (result.Succeeded)
+    {
+        return RedirectToLocal(returnUrl);
+    }
+    
+    // User doesn't have an account, offer to create one
+    // ...
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Two-Factor Authentication -->
+                <div class="concept-box">
+                    <h2>7. Two-Factor Authentication (2FA)</h2>
+                    <p>Implementing additional security with 2FA is a common interview topic.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Enabling 2FA</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Enable 2FA for a user
+public async Task<IActionResult> EnableTwoFactorAuthentication()
+{
+    var user = await _userManager.GetUserAsync(User);
+    if (user == null)
+    {
+        return NotFound();
+    }
+    
+    await _userManager.SetTwoFactorEnabledAsync(user, true);
+    await _signInManager.SignOutAsync();
+    
+    return RedirectToAction("TwoFactorAuthentication");
+}
+
+// Generate 2FA tokens
+public async Task<IActionResult> GenerateTwoFactorAuthenticationCode()
+{
+    var user = await _userManager.GetUserAsync(User);
+    if (user == null)
+    {
+        return NotFound();
+    }
+    
+    // Get authenticator key
+    var unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
+    if (string.IsNullOrEmpty(unformattedKey))
+    {
+        await _userManager.ResetAuthenticatorKeyAsync(user);
+        unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
+    }
+    
+    var model = new TwoFactorAuthenticationViewModel
+    {
+        AuthenticatorKey = unformattedKey,
+        QrCodeUrl = GenerateQrCodeUri(user.Email, unformattedKey)
+    };
+    
+    return View(model);
+}
+
+// Verify 2FA code
+public async Task<IActionResult> VerifyTwoFactorCode(TwoFactorCodeViewModel model)
+{
+    var user = await _userManager.GetUserAsync(User);
+    if (user == null)
+    {
+        return NotFound();
+    }
+    
+    var verificationResult = await _userManager.VerifyTwoFactorTokenAsync(
+        user, 
+        _userManager.Options.Tokens.AuthenticatorTokenProvider, 
+        model.Code);
+        
+    if (verificationResult)
+    {
+        // 2FA setup is complete
+        return RedirectToAction("TwoFactorSetupComplete");
+    }
+    
+    ModelState.AddModelError("", "Verification code is invalid");
+    return View(model);
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Token-Based Authentication -->
+                <div class="concept-box">
+                    <h2>8. JWT (JSON Web Token) Authentication</h2>
+                    <p>JWT authentication is crucial for modern web APIs and SPAs.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Configuring JWT</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// In Program.cs
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidAudience = configuration["JWT:ValidAudience"],
+        ValidIssuer = configuration["JWT:ValidIssuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
+    };
+});
+
+// In appsettings.json
+"JWT": {
+    "ValidAudience": "http://localhost:4200",
+    "ValidIssuer": "http://localhost:5000",
+    "Secret": "JWTAuthenticationSecretKey"
+}
+</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Generating JWT Token</span>
+                        </div>
+                        <pre><code class="language-csharp">
+public async Task<IActionResult> Login(LoginModel model)
+{
+    var user = await _userManager.FindByNameAsync(model.Username);
+    if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+    {
+        var userRoles = await _userManager.GetRolesAsync(user);
+        
+        var authClaims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        };
+        
+        foreach (var userRole in userRoles)
+        {
+            authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+        }
+        
+        var authSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+            
+        var token = new JwtSecurityToken(
+            issuer: _configuration["JWT:ValidIssuer"],
+            audience: _configuration["JWT:ValidAudience"],
+            expires: DateTime.Now.AddHours(3),
+            claims: authClaims,
+            signingCredentials: new SigningCredentials(
+                authSigningKey, SecurityAlgorithms.HmacSha256)
+        );
+        
+        return Ok(new
+        {
+            token = new JwtSecurityTokenHandler().WriteToken(token),
+            expiration = token.ValidTo
+        });
+    }
+    return Unauthorized();
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Data Protection -->
+                <div class="concept-box">
+                    <h2>9. Password Hashing and Security</h2>
+                    <p>Understanding how ASP.NET Core Identity handles password security.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Password Configuration</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// In Program.cs - Configure password requirements
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+{
+    // Password settings
+    options.Password.RequireDigit = true; // Require at least one digit
+    options.Password.RequireLowercase = true; // Require at least one lowercase letter
+    options.Password.RequireUppercase = true; // Require at least one uppercase letter
+    options.Password.RequireNonAlphanumeric = true; // Require at least one non-alphanumeric character
+    options.Password.RequiredLength = 8; // Minimum length
+    options.Password.RequiredUniqueChars = 1; // Require at least one unique character
+    
+    // Lockout settings
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+    
+    // User settings
+    options.User.RequireUniqueEmail = true;
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+});
+</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Password Management</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Change password
+public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+{
+    var user = await _userManager.GetUserAsync(User);
+    if (user == null)
+    {
+        return NotFound();
+    }
+    
+    var changePasswordResult = await _userManager.ChangePasswordAsync(
+        user,
+        model.CurrentPassword,
+        model.NewPassword);
+        
+    if (!changePasswordResult.Succeeded)
+    {
+        foreach (var error in changePasswordResult.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+        return View(model);
+    }
+    
+    await _signInManager.RefreshSignInAsync(user);
+    return RedirectToAction("PasswordChanged");
+}
+
+// Forgot password flow
+public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+{
+    if (ModelState.IsValid)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+        {
+            // Don't reveal that the user does not exist or is not confirmed
+            return RedirectToAction("ForgotPasswordConfirmation");
+        }
+        
+        // Generate password reset token
+        var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var callbackUrl = Url.Action(
+            "ResetPassword",
+            "Account",
+            new { userId = user.Id, code = code },
+            protocol: HttpContext.Request.Scheme);
+            
+        // Send email with the callback URL
+        await _emailSender.SendEmailAsync(
+            model.Email,
+            "Reset Password",
+            $"Please reset your password by clicking here: {callbackUrl}");
+            
+        return RedirectToAction("ForgotPasswordConfirmation");
+    }
+    return View(model);
+}
+
+// Reset password
+public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+{
+    if (!ModelState.IsValid)
+    {
+        return View(model);
+    }
+    
+    var user = await _userManager.FindByEmailAsync(model.Email);
+    if (user == null)
+    {
+        // Don't reveal that the user does not exist
+        return RedirectToAction("ResetPasswordConfirmation");
+    }
+    
+    var result = await _userManager.ResetPasswordAsync(
+        user, model.Code, model.Password);
+        
+    if (result.Succeeded)
+    {
+        return RedirectToAction("ResetPasswordConfirmation");
+    }
+    
+    foreach (var error in result.Errors)
+    {
+        ModelState.AddModelError(string.Empty, error.Description);
+    }
+    return View();
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Identity Customization -->
+                <div class="concept-box">
+                    <h2>10. Customizing Identity</h2>
+                    <p>Extending Identity with custom user properties and functionality.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Custom User Class</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Custom IdentityUser
+public class ApplicationUser : IdentityUser
+{
+    [PersonalData]
+    public string FirstName { get; set; }
+    
+    [PersonalData]
+    public string LastName { get; set; }
+    
+    [PersonalData]
+    public DateTime DateOfBirth { get; set; }
+    
+    public string ProfileImageUrl { get; set; }
+    
+    public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
+    
+    public bool IsActive { get; set; } = true;
+}
+
+// Custom DbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+    
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+        
+        // Customize identity tables
+        builder.Entity<ApplicationUser>(entity => {
+            entity.ToTable("Users");
+        });
+        
+        builder.Entity<IdentityRole>(entity => {
+            entity.ToTable("Roles");
+        });
+        
+        builder.Entity<IdentityUserRole<string>>(entity => {
+            entity.ToTable("UserRoles");
+        });
+        
+        builder.Entity<IdentityUserClaim<string>>(entity => {
+            entity.ToTable("UserClaims");
+        });
+        
+        builder.Entity<IdentityUserLogin<string>>(entity => {
+            entity.ToTable("UserLogins");
+        });
+        
+        builder.Entity<IdentityRoleClaim<string>>(entity => {
+            entity.ToTable("RoleClaims");
+        });
+        
+        builder.Entity<IdentityUserToken<string>>(entity => {
+            entity.ToTable("UserTokens");
+        });
+    }
+}
+</code></pre>
+                    </div>
+                </div>
+
+
+                <div class="concept-box">
+                      <!-- Summary and Best Practices -->
+    <div class="section-divider"></div>
+    <div class="summary-box">
+        <h2>Summary: ASP.NET Core Identity Best Practices</h2>
+        
+        <p>When implementing authentication and authorization in your .NET applications, following these best practices will help ensure security, maintainability, and a good user experience:</p>
+        
+        <h3>Security Best Practices</h3>
+        <ul>
+            <li>✅ <strong>Never store plain-text passwords</strong> - ASP.NET Identity handles password hashing for you</li>
+            <li>✅ <strong>Enable account lockout</strong> - Prevent brute force attacks by temporarily locking accounts after multiple failed attempts</li>
+            <li>✅ <strong>Implement 2FA</strong> - Add an extra layer of security with two-factor authentication</li>
+            <li>✅ <strong>Use HTTPS</strong> - Always secure authentication endpoints with HTTPS</li>
+            <li>✅ <strong>Set secure cookie policies</strong> - Use HttpOnly, Secure, and SameSite attributes</li>
+            <li>✅ <strong>Validate JWT tokens properly</strong> - Always validate issuer, audience, expiration, and signature</li>
+        </ul>
+        
+        <h3>Architecture Best Practices</h3>
+        <ul>
+            <li>✅ <strong>Prefer claims over roles</strong> for fine-grained permissions</li>
+            <li>✅ <strong>Use policy-based authorization</strong> rather than checking roles/claims directly in code</li>
+            <li>✅ <strong>Separate authentication concerns</strong> from business logic</li>
+            <li>✅ <strong>Create a custom IdentityUser</strong> to include application-specific properties</li>
+            <li>✅ <strong>Keep token lifetimes short</strong> - Use refresh tokens for longer sessions</li>
+        </ul>
+        
+        <h3>Performance Best Practices</h3>
+        <ul>
+            <li>✅ <strong>Cache user claims</strong> to reduce database lookups</li>
+            <li>✅ <strong>Use asynchronous methods</strong> when working with Identity (CreateAsync, SignInAsync, etc.)</li>
+            <li>✅ <strong>Consider distributed caching</strong> for session state in multi-server environments</li>
+            <li>✅ <strong>Index frequently queried columns</strong> in Identity tables</li>
+        </ul>
+        
+        <h3>Common Pitfalls to Avoid</h3>
+        <ul>
+            <li>❌ <strong>Don't implement your own password hashing</strong> - Use Identity's built-in mechanisms</li>
+            <li>❌ <strong>Don't expose sensitive data in tokens</strong> - Keep JWT payloads minimal</li>
+            <li>❌ <strong>Don't hard-code security settings</strong> - Use configuration files</li>
+            <li>❌ <strong>Don't use roles for fine-grained permissions</strong> - Use claims instead</li>
+            <li>❌ <strong>Don't trust client-side validation alone</strong> - Always validate on the server</li>
+            <li>❌ <strong>Don't forget email confirmation</strong> for user registrations</li>
+        </ul>
+        
+        <h3>Interview Questions You Should Be Prepared For</h3>
+        <ol>
+            <li>"What's the difference between authentication and authorization?"</li>
+            <li>"How does ASP.NET Core Identity store passwords?"</li>
+            <li>"Explain claims-based vs. role-based authorization"</li>
+            <li>"How would you implement JWT authentication in ASP.NET Core?"</li>
+            <li>"How can you customize the Identity user model?"</li>
+            <li>"What is the purpose of UserManager vs. SignInManager?"</li>
+            <li>"How would you implement social login with Google/Facebook?"</li>
+            <li>"How does two-factor authentication work in ASP.NET Core Identity?"</li>
+            <li>"What security features does Identity provide out of the box?"</li>
+            <li>"How would you handle user account lockouts?"</li>
+        </ol>
+    </div>
+
+    <!-- Additional Resources -->
+    <div class="resources-box mt-5">
+        <h3>Further Learning Resources 📚</h3>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="resource-card">
+                    <h4>Official Documentation</h4>
+                    <ul>
+                        <li><a href="https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity" target="_blank">Introduction to Identity</a></li>
+                        <li><a href="https://docs.microsoft.com/en-us/aspnet/core/security/authentication/customize-identity-model" target="_blank">Customizing Identity</a></li>
+                        <li><a href="https://docs.microsoft.com/en-us/aspnet/core/security/authentication/social/" target="_blank">External Provider Authentication</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <!-- <div class="resource-card">
+                    <h4>Books & Courses</h4>
+                    <ul>
+                        <li>"ASP.NET Core Security" by Christian Wenz</li>
+                        <li>"Authentication and Authorization in ASP.NET Core" on Pluralsight</li>
+                        <li>"Secure Coding in ASP.NET Core" on LinkedIn Learning</li>
+                    </ul>
+                </div> -->
+            </div>
+        </div>
+    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+  
+    <!-- footer -->
+    <div class="container">
+        <footer class="footer">
+            <div class="social-links text-right m-auto ml-sm-auto">
+                <a href="https://drive.google.com/file/d/1HYu_dCcyu5KXcBOSugAkFz6fCRA66HlO/view?usp=drive_link"
+                    target="_blank" rel="noopener noreferrer" title="Download CV"><i class="ti-download"></i></a>
+                <a href="https://github.com/abanoubma" target="_blank" rel="noopener noreferrer" title="GitHub"><i
+                        class="ti-github"></i></a>
+                <a href="https://www.linkedin.com/in/abanoubmagdy/" target="_blank" rel="noopener noreferrer"
+                    title="LinkedIn"><i class="ti-linkedin"></i></a>
+                <a href="https://www.facebook.com/abanoubmagdy" target="_blank" rel="noopener noreferrer"
+                    title="Facebook"><i class="ti-facebook"></i></a>
+            </div>
+        </footer>
+    </div> <!-- end of page footer -->
+
+    <!-- core  -->
+    <script src="../../assets/vendors/jquery/jquery-3.4.1.js"></script>
+    <script src="../../assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+
+    <!-- bootstrap 3 affix -->
+    <script src="../../assets/vendors/bootstrap/bootstrap.affix.js"></script>
+
+    <!-- Meyawo js -->
+    <script src="../../assets/js/meyawo.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-csharp.min.js"></script>
+
+</body>
+
+</html>
