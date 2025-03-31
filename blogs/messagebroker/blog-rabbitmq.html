@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Start your development with Abanoub Magdy landing page.">
+    <meta name="author" content="Devcrud">
+    <title>Abanoub Magdy Landing page | Free Bootstrap 4.3.x landing page</title>
+    <!-- font icons -->
+    <link rel="stylesheet" href="../../assets/vendors/themify-icons/css/themify-icons.css">
+    <!-- Bootstrap + Meyawo main styles -->
+    <link rel="stylesheet" href="../../assets/css/meyawo.css">
+    <!-- Add this in the head section -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+</head>
+
+<body data-spy="scroll" data-target=".navbar" data-offset="40" id="home">
+
+    <!-- Page Navbar -->
+    <nav class="custom-navbar affix" data-offset-top="20">
+        <div class="container">
+            <a class="logo" href="../../blog.html">Abanoub Magdy - Blogs</a>
+            <!-- <a class="resume-link" href="index.html" target="_blank"> - Resume</a> -->
+
+            <ul class="nav">
+                <li class="item">
+                    <a class="link" href="../../blog.html">Home</a>
+                </li>
+                <li class="item">
+                    <a class="link" href="../../blog.html#blog">Blog</a>
+                </li>
+                <li class="item">
+                    <a class="link" href="../../index.html">Resume</a>
+                </li>
+                <!-- <li class="item ml-md-3">
+                    <a href="components.html" class="btn btn-primary">Components</a>
+                </li> -->
+            </ul>
+            <a href="javascript:void(0)" id="nav-toggle" class="hamburger hamburger--elastic">
+                <div class="hamburger-box">
+                    <div class="hamburger-inner"></div>
+                </div>
+            </a>
+        </div>
+    </nav><!-- End of Page Navbar -->
+
+
+    <div class="blog-hero">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 mx-auto text-center">
+                    <h1 class="display-4 mb-3">RabbitMQ</h1>
+                    <p class="lead">Advanced Message Queuing Protocol (AMQP) Implementation and Patterns</p>
+                    <div class="blog-meta mt-4">
+                        <span><i class="ti-calendar"></i> March 2025</span>
+                        <span class="mx-3">|</span>
+                        <span><i class="ti-timer"></i> 30 min read</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="section">
+        <div class="container">
+            <div class="col-lg-8 mx-auto">
+                <!-- Introduction -->
+                <div class="concept-box">
+                    <h2>1. Understanding RabbitMQ</h2>
+                    <p>RabbitMQ is a message broker that implements the Advanced Message Queuing Protocol (AMQP). It enables:</p>
+                    
+                    <ul>
+                        <li>Asynchronous message processing</li>
+                        <li>Decoupling of services</li>
+                        <li>Load balancing and scaling</li>
+                        <li>Message persistence and reliability</li>
+                        <li>Complex routing scenarios</li>
+                    </ul>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">RabbitMQ Architecture Overview</span>
+                        </div>
+                        <pre><code class="language-plaintext">
+┌──────────────────────────────────────────────────────────┐
+│                     RabbitMQ Broker                      │
+│                                                          │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │
+│  │  Exchange   │    │   Bindings  │    │   Queues    │  │
+│  │            ◄├────┤     with    ├────►            │  │
+│  │  (Routing)  │    │ Routing Keys│    │ (Storage)  │  │
+│  └─────────────┘    └─────────────┘    └─────────────┘  │
+│         ▲                                     ▲          │
+│         │                                     │          │
+└─────────┼─────────────────────────────────────┼──────────┘
+          │                                     │
+    ┌───────────┐                        ┌───────────┐
+    │           │                        │           │
+    │ Publisher │                        │ Consumer  │
+    │           │                        │           │
+    └───────────┘                        └───────────┘
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Core Concepts -->
+                <div class="concept-box">
+                    <h2>2. Core Concepts</h2>
+                    <p>Understanding the fundamental components of RabbitMQ:</p>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <h4>Message Flow Components</h4>
+                                <ul>
+                                    <li>Publishers (Producers)</li>
+                                    <li>Exchanges</li>
+                                    <li>Bindings</li>
+                                    <li>Queues</li>
+                                    <li>Consumers</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <h4>Exchange Types</h4>
+                                <ul>
+                                    <li>Direct Exchange</li>
+                                    <li>Topic Exchange</li>
+                                    <li>Fanout Exchange</li>
+                                    <li>Headers Exchange</li>
+                                    <li>Default (nameless) Exchange</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Basic Message Flow Example</h3>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Basic Publisher/Consumer Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Publisher
+public class OrderPublisher
+{
+    private readonly IModel _channel;
+    private const string ExchangeName = "order_exchange";
+    private const string RoutingKey = "order.created";
+
+    public async Task PublishOrderCreated(Order order)
+    {
+        var message = JsonSerializer.Serialize(order);
+        var body = Encoding.UTF8.GetBytes(message);
+
+        _channel.BasicPublish(
+            exchange: ExchangeName,
+            routingKey: RoutingKey,
+            basicProperties: null,
+            body: body);
+    }
+}
+
+// Consumer
+public class OrderConsumer : BackgroundService
+{
+    private readonly IModel _channel;
+    private const string QueueName = "order_processing_queue";
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        _channel.BasicConsume(
+            queue: QueueName,
+            autoAck: false,
+            consumer: new EventingBasicConsumer(_channel)
+            {
+                Received = (model, ea) =>
+                {
+                    try
+                    {
+                        var body = ea.Body.ToArray();
+                        var message = Encoding.UTF8.GetString(body);
+                        var order = JsonSerializer.Deserialize<Order>(message);
+
+                        // Process the order
+                        ProcessOrder(order);
+
+                        // Acknowledge the message
+                        _channel.BasicAck(ea.DeliveryTag, false);
+                    }
+                    catch (Exception)
+                    {
+                        // Reject the message and requeue
+                        _channel.BasicNack(ea.DeliveryTag, false, true);
+                    }
+                }
+            });
+    }
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Exchange Types -->
+                <div class="concept-box">
+                    <h2>3. Exchange Types in Detail</h2>
+                    
+                    <h3>Direct Exchange</h3>
+                    <p>Messages are routed to queues based on an exact match of the routing key.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Direct Exchange Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Declaring a direct exchange
+_channel.ExchangeDeclare(
+    exchange: "direct_logs",
+    type: ExchangeType.Direct);
+
+// Creating a queue and binding
+var queueName = _channel.QueueDeclare().QueueName;
+_channel.QueueBind(
+    queue: queueName,
+    exchange: "direct_logs",
+    routingKey: "error");  // Will only receive messages with routing key "error"
+
+// Publishing to direct exchange
+_channel.BasicPublish(
+    exchange: "direct_logs",
+    routingKey: "error",
+    basicProperties: null,
+    body: Encoding.UTF8.GetBytes("Error message"));
+</code></pre>
+                    </div>
+
+                    <h3>Topic Exchange</h3>
+                    <p>Routes messages based on wildcard matches between the routing key and the routing pattern.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Topic Exchange Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Declaring a topic exchange
+_channel.ExchangeDeclare(
+    exchange: "topic_logs",
+    type: ExchangeType.Topic);
+
+// Binding with patterns
+// * (star) substitutes exactly one word
+// # (hash) substitutes zero or more words
+_channel.QueueBind(
+    queue: "usa_queue",
+    exchange: "topic_logs",
+    routingKey: "market.usa.#");  // Matches market.usa.nyse, market.usa.nasdaq, etc.
+
+_channel.QueueBind(
+    queue: "stock_queue",
+    exchange: "topic_logs",
+    routingKey: "market.*.stock");  // Matches market.usa.stock, market.eu.stock, etc.
+
+// Publishing with specific routing keys
+_channel.BasicPublish(
+    exchange: "topic_logs",
+    routingKey: "market.usa.nyse",
+    basicProperties: null,
+    body: Encoding.UTF8.GetBytes("NYSE market update"));
+</code></pre>
+                    </div>
+
+                    <h3>Fanout Exchange</h3>
+                    <p>Broadcasts messages to all bound queues, ignoring routing keys.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Fanout Exchange Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Declaring a fanout exchange
+_channel.ExchangeDeclare(
+    exchange: "logs",
+    type: ExchangeType.Fanout);
+
+// Creating multiple queues and binding them
+var queue1 = _channel.QueueDeclare().QueueName;
+var queue2 = _channel.QueueDeclare().QueueName;
+
+_channel.QueueBind(queue: queue1, exchange: "logs", routingKey: "");
+_channel.QueueBind(queue: queue2, exchange: "logs", routingKey: "");
+
+// Publishing (routing key is ignored)
+_channel.BasicPublish(
+    exchange: "logs",
+    routingKey: "",
+    basicProperties: null,
+    body: Encoding.UTF8.GetBytes("Broadcast message"));
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Message Patterns -->
+                <div class="concept-box">
+                    <h2>4. Message Patterns</h2>
+                    
+                    <h3>Publish/Subscribe Pattern</h3>
+                    <p>Enables broadcasting messages to multiple consumers, ideal for event-driven architectures.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Pub/Sub Implementation</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Publisher
+public class EventPublisher
+{
+    private readonly IModel _channel;
+    private const string ExchangeName = "events";
+
+    public EventPublisher(IModel channel)
+    {
+        _channel = channel;
+        _channel.ExchangeDeclare(ExchangeName, ExchangeType.Fanout);
+    }
+
+    public void PublishEvent<T>(T @event)
+    {
+        var message = JsonSerializer.Serialize(@event);
+        var body = Encoding.UTF8.GetBytes(message);
+
+        _channel.BasicPublish(
+            exchange: ExchangeName,
+            routingKey: "",
+            basicProperties: null,
+            body: body);
+    }
+}
+
+// Subscriber
+public class EventSubscriber : BackgroundService
+{
+    private readonly IModel _channel;
+    private readonly string _queueName;
+
+    public EventSubscriber(IModel channel)
+    {
+        _channel = channel;
+        _channel.ExchangeDeclare("events", ExchangeType.Fanout);
+        _queueName = _channel.QueueDeclare().QueueName;
+        _channel.QueueBind(_queueName, "events", "");
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        var consumer = new EventingBasicConsumer(_channel);
+        consumer.Received += (model, ea) =>
+        {
+            var body = ea.Body.ToArray();
+            var message = Encoding.UTF8.GetString(body);
+            ProcessMessage(message);
+            _channel.BasicAck(ea.DeliveryTag, false);
+        };
+
+        _channel.BasicConsume(
+            queue: _queueName,
+            autoAck: false,
+            consumer: consumer);
+
+        await Task.CompletedTask;
+    }
+}
+</code></pre>
+                    </div>
+
+                    <h3>Request/Reply Pattern</h3>
+                    <p>Implements synchronous-like communication over asynchronous messaging.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Request/Reply Implementation</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Request/Reply Client
+public class RpcClient : IDisposable
+{
+    private readonly IModel _channel;
+    private readonly string _replyQueueName;
+    private readonly ConcurrentDictionary<string, TaskCompletionSource<string>> _callbackMapper = new();
+
+    public RpcClient(IModel channel)
+    {
+        _channel = channel;
+        _replyQueueName = _channel.QueueDeclare().QueueName;
+
+        var consumer = new EventingBasicConsumer(_channel);
+        consumer.Received += (model, ea) =>
+        {
+            if (!_callbackMapper.TryRemove(ea.BasicProperties.CorrelationId, out var tcs))
+                return;
+
+            var response = Encoding.UTF8.GetString(ea.Body.ToArray());
+            tcs.TrySetResult(response);
+        };
+
+        _channel.BasicConsume(
+            consumer: consumer,
+            queue: _replyQueueName,
+            autoAck: true);
+    }
+
+    public async Task<string> CallAsync(string message, CancellationToken cancellationToken = default)
+    {
+        var correlationId = Guid.NewGuid().ToString();
+        var props = _channel.CreateBasicProperties();
+        props.CorrelationId = correlationId;
+        props.ReplyTo = _replyQueueName;
+
+        var messageBytes = Encoding.UTF8.GetBytes(message);
+        var tcs = new TaskCompletionSource<string>();
+        _callbackMapper.TryAdd(correlationId, tcs);
+
+        _channel.BasicPublish(
+            exchange: "",
+            routingKey: "rpc_queue",
+            basicProperties: props,
+            body: messageBytes);
+
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        cts.CancelAfter(TimeSpan.FromSeconds(30)); // Timeout after 30 seconds
+        
+        using var registration = cts.Token.Register(() => 
+            tcs.TrySetCanceled());
+
+        return await tcs.Task;
+    }
+
+    public void Dispose()
+    {
+        _channel?.Dispose();
+    }
+}
+
+// RPC Server
+public class RpcServer : BackgroundService
+{
+    private readonly IModel _channel;
+    private const string QueueName = "rpc_queue";
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        _channel.QueueDeclare(QueueName, false, false, false, null);
+        _channel.BasicQos(0, 1, false);
+
+        var consumer = new EventingBasicConsumer(_channel);
+        _channel.BasicConsume(QueueName, false, consumer);
+
+        consumer.Received += (model, ea) =>
+        {
+            string response = null;
+            var body = ea.Body.ToArray();
+            var props = ea.BasicProperties;
+            var replyProps = _channel.CreateBasicProperties();
+            replyProps.CorrelationId = props.CorrelationId;
+
+            try
+            {
+                var message = Encoding.UTF8.GetString(body);
+                response = ProcessMessage(message); // Your business logic here
+            }
+            catch (Exception e)
+            {
+                response = $"Error: {e.Message}";
+            }
+            finally
+            {
+                var responseBytes = Encoding.UTF8.GetBytes(response);
+                _channel.BasicPublish(
+                    exchange: "",
+                    routingKey: props.ReplyTo,
+                    basicProperties: replyProps,
+                    body: responseBytes);
+                _channel.BasicAck(ea.DeliveryTag, false);
+            }
+        };
+
+        await Task.CompletedTask;
+    }
+}
+</code></pre>
+                    </div>
+
+                    <h3>Competing Consumers Pattern</h3>
+                    <p>Multiple consumers process messages from a single queue, enabling load balancing and scaling.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Competing Consumers Implementation</span>
+                        </div>
+                        <pre><code class="language-csharp">
+public class WorkerService : BackgroundService
+{
+    private readonly IModel _channel;
+    private readonly string _queueName;
+    private readonly int _workerId;
+
+    public WorkerService(IModel channel, string queueName, int workerId)
+    {
+        _channel = channel;
+        _queueName = queueName;
+        _workerId = workerId;
+
+        // Ensure fair dispatch with prefetch count
+        _channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        var consumer = new EventingBasicConsumer(_channel);
+        consumer.Received += (model, ea) =>
+        {
+            try
+            {
+                var body = ea.Body.ToArray();
+                var message = Encoding.UTF8.GetString(body);
+                
+                // Process message
+                ProcessMessage(message, _workerId);
+                
+                // Acknowledge successful processing
+                _channel.BasicAck(ea.DeliveryTag, false);
+            }
+            catch (Exception)
+            {
+                // Negative acknowledge and requeue on failure
+                _channel.BasicNack(ea.DeliveryTag, false, true);
+            }
+        };
+
+        _channel.BasicConsume(
+            queue: _queueName,
+            autoAck: false,
+            consumer: consumer);
+
+        await Task.CompletedTask;
+    }
+
+    private void ProcessMessage(string message, int workerId)
+    {
+        // Simulate processing time
+        Thread.Sleep(Random.Shared.Next(1000, 3000));
+        Console.WriteLine($"Worker {workerId} processed: {message}");
+    }
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Advanced Exchange Features -->
+                <div class="concept-box">
+                    <h2>6. Advanced Exchange Features</h2>
+
+                    <h3>Alternate Exchanges</h3>
+                    <p>Handle unroutable messages by directing them to a fallback exchange.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Alternate Exchange Setup</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Declare alternate exchange
+_channel.ExchangeDeclare(
+    exchange: "alt.exchange",
+    type: ExchangeType.Fanout,
+    durable: true);
+
+// Create queue for unroutable messages
+_channel.QueueDeclare(
+    queue: "unroutable.messages",
+    durable: true,
+    exclusive: false,
+    autoDelete: false);
+
+_channel.QueueBind(
+    queue: "unroutable.messages",
+    exchange: "alt.exchange",
+    routingKey: "");
+
+// Declare main exchange with alternate exchange
+var arguments = new Dictionary<string, object>
+{
+    {"alternate-exchange", "alt.exchange"}
+};
+
+_channel.ExchangeDeclare(
+    exchange: "main.exchange",
+    type: ExchangeType.Direct,
+    durable: true,
+    autoDelete: false,
+    arguments: arguments);
+
+// Publishing example
+var properties = _channel.CreateBasicProperties();
+properties.Persistent = true;
+
+_channel.BasicPublish(
+    exchange: "main.exchange",
+    routingKey: "unknown.key", // This will go to alternate exchange
+    basicProperties: properties,
+    body: Encoding.UTF8.GetBytes("Unroutable message"));
+</code></pre>
+                    </div>
+
+                    <h3>Message Acknowledgments</h3>
+                    <p>Different acknowledgment modes and their implications for message processing.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Message Acknowledgment Patterns</span>
+                        </div>
+                        <pre><code class="language-csharp">
+public class MessageAcknowledgmentExample
+{
+    private readonly IModel _channel;
+
+    // 1. Manual Acknowledgment
+    public void ManualAckConsumer()
+    {
+        _channel.BasicQos(0, 1, false); // Process one message at a time
+        
+        var consumer = new EventingBasicConsumer(_channel);
+        consumer.Received += (model, ea) =>
+        {
+            try
+            {
+                // Process the message
+                ProcessMessage(ea.Body.ToArray());
+
+                // Acknowledge single message
+                _channel.BasicAck(
+                    deliveryTag: ea.DeliveryTag,
+                    multiple: false);
+            }
+            catch (Exception)
+            {
+                // Reject and requeue
+                _channel.BasicNack(
+                    deliveryTag: ea.DeliveryTag,
+                    multiple: false,
+                    requeue: true);
+            }
+        };
+
+        _channel.BasicConsume(
+            queue: "my.queue",
+            autoAck: false, // Manual ack
+            consumer: consumer);
+    }
+
+    // 2. Batch Acknowledgment
+    public void BatchAckConsumer()
+    {
+        _channel.BasicQos(0, 100, false); // Process up to 100 messages
+        var messageCount = 0;
+        
+        var consumer = new EventingBasicConsumer(_channel);
+        consumer.Received += (model, ea) =>
+        {
+            try
+            {
+                ProcessMessage(ea.Body.ToArray());
+                messageCount++;
+
+                if (messageCount >= 100)
+                {
+                    // Acknowledge all messages up to this point
+                    _channel.BasicAck(
+                        deliveryTag: ea.DeliveryTag,
+                        multiple: true);
+                    messageCount = 0;
+                }
+            }
+            catch (Exception)
+            {
+                // Reject all unacknowledged messages
+                _channel.BasicNack(
+                    deliveryTag: ea.DeliveryTag,
+                    multiple: true,
+                    requeue: true);
+                messageCount = 0;
+            }
+        };
+
+        _channel.BasicConsume(
+            queue: "batch.queue",
+            autoAck: false,
+            consumer: consumer);
+    }
+
+    // 3. Publisher Confirms
+    public async Task PublishWithConfirms()
+    {
+        _channel.ConfirmSelect(); // Enable publisher confirms
+
+        try
+        {
+            var properties = _channel.CreateBasicProperties();
+            properties.Persistent = true;
+
+            _channel.BasicPublish(
+                exchange: "my.exchange",
+                routingKey: "my.key",
+                basicProperties: properties,
+                body: Encoding.UTF8.GetBytes("message"));
+
+            // Wait for confirmation
+            if (!_channel.WaitForConfirms(TimeSpan.FromSeconds(5)))
+            {
+                throw new Exception("Message was not confirmed by broker");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle publish failure
+            // Implement retry logic or fallback
+        }
+    }
+}
+</code></pre>
+                    </div>
+
+                    <h3>Exchange Options and Features</h3>
+                    <p>Advanced exchange configurations and features for complex routing scenarios.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Advanced Exchange Configurations</span>
+                        </div>
+                        <pre><code class="language-csharp">
+public class AdvancedExchangeConfigurations
+{
+    private readonly IModel _channel;
+
+    // 1. Internal Exchange (not accessible from outside)
+    public void DeclareInternalExchange()
+    {
+        _channel.ExchangeDeclare(
+            exchange: "internal.exchange",
+            type: ExchangeType.Direct,
+            durable: true,
+            autoDelete: false,
+            arguments: new Dictionary<string, object>
+            {
+                {"internal", true}
+            });
+    }
+
+    // 2. Exchange with TTL
+    public void DeclareExchangeWithTTL()
+    {
+        var arguments = new Dictionary<string, object>
+        {
+            {"x-message-ttl", 30000}, // 30 seconds
+            {"x-expires", 3600000}    // Exchange expires after 1 hour of disuse
+        };
+
+        _channel.ExchangeDeclare(
+            exchange: "ttl.exchange",
+            type: ExchangeType.Topic,
+            durable: true,
+            autoDelete: false,
+            arguments: arguments);
+    }
+
+    // 3. Exchange to Exchange Binding
+    public void BindExchanges()
+    {
+        // Declare source and destination exchanges
+        _channel.ExchangeDeclare("source.exchange", ExchangeType.Topic);
+        _channel.ExchangeDeclare("destination.exchange", ExchangeType.Fanout);
+
+        // Bind exchanges
+        _channel.ExchangeBind(
+            destination: "destination.exchange",
+            source: "source.exchange",
+            routingKey: "bind.key");
+    }
+
+    // 4. Delayed Message Exchange (requires plugin)
+    public void DeclareDelayedExchange()
+    {
+        var arguments = new Dictionary<string, object>
+        {
+            {"x-delayed-type", "direct"}
+        };
+
+        _channel.ExchangeDeclare(
+            exchange: "delayed.exchange",
+            type: "x-delayed-message",
+            durable: true,
+            autoDelete: false,
+            arguments: arguments);
+    }
+
+    // 5. Publishing with Headers Exchange
+    public void PublishWithHeaders()
+    {
+        var properties = _channel.CreateBasicProperties();
+        properties.Headers = new Dictionary<string, object>
+        {
+            {"format", "pdf"},
+            {"type", "report"},
+            {"x-match", "all"} // Must match all headers
+        };
+
+        _channel.BasicPublish(
+            exchange: "headers.exchange",
+            routingKey: "",
+            basicProperties: properties,
+            body: Encoding.UTF8.GetBytes("message"));
+    }
+}
+</code></pre>
+                    </div>
+
+                    <div class="warning-box">
+                        <h3>Exchange Features Summary</h3>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Description</th>
+                                    <th>Use Case</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Alternate Exchange</td>
+                                    <td>Handles unroutable messages</td>
+                                    <td>Message audit, error handling</td>
+                                </tr>
+                                <tr>
+                                    <td>Internal Exchange</td>
+                                    <td>Only accessible within the broker</td>
+                                    <td>Internal message routing</td>
+                                </tr>
+                                <tr>
+                                    <td>Exchange TTL</td>
+                                    <td>Auto-delete unused exchanges</td>
+                                    <td>Resource cleanup</td>
+                                </tr>
+                                <tr>
+                                    <td>Exchange Binding</td>
+                                    <td>Route messages between exchanges</td>
+                                    <td>Complex routing topologies</td>
+                                </tr>
+                                <tr>
+                                    <td>Delayed Exchange</td>
+                                    <td>Schedule message delivery</td>
+                                    <td>Scheduled tasks, delays</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Best Practices -->
+                <div class="concept-box">
+                    <h2>6. Best Practices and Common Pitfalls</h2>
+
+                    <div class="warning-box">
+                        <h3>Best Practices ✅</h3>
+                        <ul class="simple-list">
+                            <li>Always use acknowledgments for message processing</li>
+                            <li>Implement retry policies with exponential backoff</li>
+                            <li>Use persistent messages for important data</li>
+                            <li>Monitor queue lengths and consumer health</li>
+                            <li>Implement circuit breakers for external services</li>
+                            <li>Use appropriate prefetch counts</li>
+                            <li>Handle connection failures gracefully</li>
+                        </ul>
+
+                        <h3>Common Pitfalls ⚠️</h3>
+                        <ul class="simple-list">
+                            <li>Not handling channel/connection failures</li>
+                            <li>Using too many queues</li>
+                            <li>Publishing without confirms</li>
+                            <li>Not setting message TTL</li>
+                            <li>Improper error handling in consumers</li>
+                            <li>Memory leaks from unmanaged channels</li>
+                        </ul>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Robust Connection Management</span>
+                        </div>
+                        <pre><code class="language-csharp">
+public class RabbitMQConnection : IDisposable
+{
+    private readonly IConnectionFactory _connectionFactory;
+    private IConnection _connection;
+    private bool _disposed;
+    private readonly object _syncRoot = new();
+    private readonly ILogger<RabbitMQConnection> _logger;
+
+    public RabbitMQConnection(IConnectionFactory connectionFactory, 
+        ILogger<RabbitMQConnection> logger)
+    {
+        _connectionFactory = connectionFactory;
+        _logger = logger;
+    }
+
+    public IModel CreateModel()
+    {
+        if (!IsConnected)
+        {
+            TryConnect();
+        }
+
+        return _connection.CreateModel();
+    }
+
+    public bool IsConnected => _connection?.IsOpen == true && !_disposed;
+
+    public bool TryConnect()
+    {
+        lock (_syncRoot)
+        {
+            var policy = RetryPolicy.Handle<SocketException>()
+                .Or<BrokerUnreachableException>()
+                .WaitAndRetry(5, retryAttempt => 
+                    TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (ex, time) =>
+                    {
+                        _logger.LogWarning(ex, 
+                            "RabbitMQ Client could not connect after {TimeOut}s", 
+                            $"{time.TotalSeconds:n1}");
+                    }
+                );
+
+            policy.Execute(() =>
+            {
+                _connection = _connectionFactory.CreateConnection();
+            });
+
+            if (IsConnected)
+            {
+                _connection.ConnectionShutdown += OnConnectionShutdown;
+                _connection.CallbackException += OnCallbackException;
+                _connection.ConnectionBlocked += OnConnectionBlocked;
+
+                _logger.LogInformation(
+                    "RabbitMQ Client acquired a persistent connection");
+
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    private void OnConnectionBlocked(object sender, ConnectionBlockedEventArgs e)
+    {
+        _logger.LogWarning("A RabbitMQ connection is blocked. Trying to re-connect...");
+        TryConnect();
+    }
+
+    private void OnCallbackException(object sender, CallbackExceptionEventArgs e)
+    {
+        _logger.LogWarning("A RabbitMQ connection throw exception. Trying to re-connect...");
+        TryConnect();
+    }
+
+    private void OnConnectionShutdown(object sender, ShutdownEventArgs reason)
+    {
+        _logger.LogWarning("A RabbitMQ connection is on shutdown. Trying to re-connect...");
+        TryConnect();
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+
+        _disposed = true;
+        _connection?.Dispose();
+    }
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="section-divider"></div>
+                <div class="summary-box">
+                    <h2>Key Takeaways 🌟</h2>
+                    <ul>
+                        <li>✅ Understand exchange types and their use cases</li>
+                        <li>✅ Implement appropriate message patterns for your scenarios</li>
+                        <li>✅ Use dead letter exchanges for failed messages</li>
+                        <li>✅ Handle connections and channels properly</li>
+                        <li>✅ Implement proper error handling and retries</li>
+                        <li>✅ Monitor queue health and performance</li>
+                        <li>✅ Choose appropriate acknowledgment modes</li>
+                    </ul>
+
+                    <h3>When to Use RabbitMQ</h3>
+                    <p>RabbitMQ is ideal for:</p>
+                    <ul>
+                        <li>Asynchronous processing requirements</li>
+                        <li>Microservices communication</li>
+                        <li>Event-driven architectures</li>
+                        <li>Load balancing and scaling</li>
+                        <li>Complex routing scenarios</li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div class="resources-box mt-5">
+                    <h3>Further Learning Resources 📚</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="resource-card">
+                                <h4>Official Documentation</h4>
+                                <ul>
+                                    <li><a href="https://www.rabbitmq.com/documentation.html" target="_blank">RabbitMQ Official Docs</a></li>
+                                    <li><a href="https://www.rabbitmq.com/getstarted.html" target="_blank">RabbitMQ Tutorials</a></li>
+                                    <li><a href="https://www.rabbitmq.com/dotnet.html" target="_blank">.NET Client Documentation</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="resource-card">
+                                <h4>Best Practice Guides</h4>
+                                <ul>
+                                    <li><a href="https://www.rabbitmq.com/production-checklist.html" target="_blank">Production Checklist</a></li>
+                                    <li><a href="https://www.rabbitmq.com/monitoring.html" target="_blank">Monitoring Guide</a></li>
+                                    <li><a href="https://www.rabbitmq.com/reliability.html" target="_blank">Reliability Guide</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- footer -->
+    <div class="container">
+        <footer class="footer">
+            <div class="social-links text-right m-auto ml-sm-auto">
+                <a href="https://drive.google.com/file/d/1HYu_dCcyu5KXcBOSugAkFz6fCRA66HlO/view?usp=drive_link"
+                    target="_blank" rel="noopener noreferrer" title="Download CV"><i class="ti-download"></i></a>
+                <a href="https://github.com/abanoubma" target="_blank" rel="noopener noreferrer" title="GitHub"><i
+                        class="ti-github"></i></a>
+                <a href="https://www.linkedin.com/in/abanoubmagdy/" target="_blank" rel="noopener noreferrer"
+                    title="LinkedIn"><i class="ti-linkedin"></i></a>
+                <a href="https://www.facebook.com/abanoubmagdy" target="_blank" rel="noopener noreferrer"
+                    title="Facebook"><i class="ti-facebook"></i></a>
+            </div>
+        </footer>
+    </div> <!-- end of page footer -->
+
+    <!-- core  -->
+    <script src="../../assets/vendors/jquery/jquery-3.4.1.js"></script>
+    <script src="../../assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+
+    <!-- bootstrap 3 affix -->
+    <script src="../../assets/vendors/bootstrap/bootstrap.affix.js"></script>
+
+    <!-- Meyawo js -->
+    <script src="../../assets/js/meyawo.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-csharp.min.js"></script>
+
+</body>
+
+</html>

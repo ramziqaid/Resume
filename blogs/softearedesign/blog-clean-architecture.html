@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="ASP.NET Core Identity - Complete Interview Guide">
+    <meta name="author" content="Abanoub Magdy">
+    <title>Clean Architecture  | Abanoub Magdy</title>
+    <!-- font icons -->
+    <link rel="stylesheet" href="../../assets/vendors/themify-icons/css/themify-icons.css">
+    <!-- Bootstrap + Meyawo main styles -->
+    <link rel="stylesheet" href="../../assets/css/meyawo.css">
+    <!-- Add this in the head section -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+</head>
+
+<body data-spy="scroll" data-target=".navbar" data-offset="40" id="home">
+
+    <!-- Page Navbar -->
+    <nav class="custom-navbar affix" data-offset-top="20">
+        <div class="container">
+            <a class="logo" href="../../blog.html">Abanoub Magdy - Blogs</a>
+
+            <ul class="nav">
+                <li class="item">
+                    <a class="link" href="../../blog.html">Home</a>
+                </li>
+                <li class="item">
+                    <a class="link" href="../../blog.html#blog">Blog</a>
+                </li>
+                <li class="item">
+                    <a class="link" href="../../index.html">Resume</a>
+                </li>
+            </ul>
+            <a href="javascript:void(0)" id="nav-toggle" class="hamburger hamburger--elastic">
+                <div class="hamburger-box">
+                    <div class="hamburger-inner"></div>
+                </div>
+            </a>
+        </div>
+    </nav><!-- End of Page Navbar --> 
+
+
+    <div class="blog-hero">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 mx-auto text-center">
+                    <h1 class="display-4 mb-3">Clean Architecture</h1>
+                    <p class="lead">Building Maintainable, Testable, and Framework-Independent Applications</p>
+                    <div class="blog-meta mt-4">
+                        <span><i class="ti-calendar"></i> March 2025</span>
+                        <span class="mx-3">|</span>
+                        <span><i class="ti-timer"></i> 25 min read</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="section">
+        <div class="container">
+            <div class="col-lg-8 mx-auto">
+                <!-- Introduction -->
+                <div class="concept-box">
+                    <h2>1. Understanding Clean Architecture</h2>
+                    <p>Clean Architecture, proposed by Robert C. Martin (Uncle Bob), is a software design philosophy that separates concerns into distinct layers, making systems more:</p>
+                    
+                    <ul>
+                        <li>Independent of frameworks</li>
+                        <li>Testable without external dependencies</li>
+                        <li>Independent of the UI</li>
+                        <li>Independent of the database</li>
+                        <li>Independent of any external agency</li>
+                    </ul>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">The Clean Architecture Diagram</span>
+                        </div>
+                        <img src="../../assets/imgs/blog/softwarearchiture/CleanArchitecture.jpg" class="blog-card-img"
+                        alt="Clean Architecture">
+                        <pre>
+                            <code class="language-plaintext">
+┌───────────────────────────────────────────────────────────┐
+│                                                           │
+│            ENTERPRISE BUSINESS RULES                      │
+│                                                           │
+│            ┌───────────────────────────────┐             │
+│            │                               │             │
+│            │           ENTITIES            │             │
+│            │                               │             │
+│            └───────────────────────────────┘             │
+│                           ▲                               │
+│                           │                               │
+│            APPLICATION BUSINESS RULES                     │
+│                           │                               │
+│            ┌───────────────────────────────┐             │
+│            │                               │             │
+│            │          USE CASES            │             │
+│            │                               │             │
+│            └───────────────────────────────┘             │
+│                           ▲                               │
+│                           │                               │
+│            INTERFACE ADAPTERS                             │
+│                           │                               │
+│  ┌─────────────┐ ┌───────┴───────┐ ┌─────────────┐       │
+│  │             │ │               │ │             │       │
+│  │ CONTROLLERS │ │  PRESENTERS  │ │  GATEWAYS   │       │
+│  │             │ │               │ │             │       │
+│  └─────┬───────┘ └───────┬───────┘ └──────┬──────┘       │
+│        │                 │                │              │
+│        └─────────────────┼────────────────┘              │
+│                          │                               │
+│            FRAMEWORKS & DRIVERS                           │
+│                          │                               │
+│  ┌─────────────┐ ┌───────┴───────┐ ┌─────────────┐       │
+│  │    UI       │ │    WEB        │ │  DATABASE   │       │
+│  │             │ │               │ │             │       │
+│  └─────────────┘ └───────────────┘ └─────────────┘       │
+│                                                           │
+└───────────────────────────────────────────────────────────┘
+</code></pre>
+                    </div>
+                    
+                    <h3>The Dependency Rule</h3>
+                    <p>The fundamental rule of Clean Architecture is the <strong>Dependency Rule</strong>: Source code dependencies must only point inward, toward higher-level policies.</p>
+                    
+                    <p>Nothing in an inner circle can know anything about something in an outer circle. In particular, the name of something declared in an outer circle must not be mentioned by the code in an inner circle.</p>
+                </div>
+
+                <!-- Core Principles -->
+                <div class="concept-box">
+                    <h2>2. Core Principles</h2>
+                    <p>Clean Architecture combines several key architectural principles:</p>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <h4>SOLID Principles</h4>
+                                <ul>
+                                    <li><strong>S</strong>ingle Responsibility</li>
+                                    <li><strong>O</strong>pen-Closed</li>
+                                    <li><strong>L</strong>iskov Substitution</li>
+                                    <li><strong>I</strong>nterface Segregation</li>
+                                    <li><strong>D</strong>ependency Inversion</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <h4>Architectural Boundaries</h4>
+                                <ul>
+                                    <li>Domain Independence</li>
+                                    <li>Infrastructure Independence</li>
+                                    <li>Framework Independence</li>
+                                    <li>Testability by Design</li>
+                                    <li>Separation of Concerns</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>The Dependency Inversion Principle</h3>
+                    <p>This principle is particularly crucial for Clean Architecture:</p>
+                    <ol>
+                        <li>High-level modules should not depend on low-level modules. Both should depend on abstractions.</li>
+                        <li>Abstractions should not depend on details. Details should depend on abstractions.</li>
+                    </ol>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Dependency Inversion Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// BEFORE - Without Dependency Inversion ❌
+public class UserService
+{
+    private readonly SqlUserRepository _repository; // Concrete dependency
+    
+    public UserService()
+    {
+        _repository = new SqlUserRepository(); // Direct instantiation of concrete class
+    }
+    
+    public User GetUserById(int id)
+    {
+        return _repository.GetById(id);
+    }
+}
+
+// AFTER - With Dependency Inversion ✅
+public interface IUserRepository // Abstraction
+{
+    User GetById(int id);
+}
+
+public class SqlUserRepository : IUserRepository // Implementation
+{
+    public User GetById(int id)
+    {
+        // Implementation using SQL
+    }
+}
+
+public class UserService
+{
+    private readonly IUserRepository _repository; // Depends on abstraction
+    
+    public UserService(IUserRepository repository) // Dependency injection
+    {
+        _repository = repository;
+    }
+    
+    public User GetById(int id)
+    {
+        return _repository.GetById(id);
+    }
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Architecture Layers -->
+                <div class="concept-box">
+                    <h2>3. Architecture Layers</h2>
+                    <p>Clean Architecture consists of concentric circles representing different areas of software, with the innermost circles being the most abstract and high-level.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">The Four Main Layers</span>
+                        </div>
+                        <pre><code class="language-plaintext">
+┌───────────────────────────────────────────────────────────┐
+│                                                           │
+│           ┌───────────────────────────────────┐           │
+│           │                                   │           │
+│           │ 1. ENTITIES                       │           │
+│           │    - Enterprise business rules    │           │
+│           │    - POCOs/domain objects         │           │
+│           │    - No dependencies on outer layers│          │
+│           │                                   │           │
+│           └───────────────────────────────────┘           │
+│                           │                               │
+│           ┌───────────────▼───────────────┐               │
+│           │                               │               │
+│           │ 2. USE CASES                  │               │
+│           │    - Application business rules│               │
+│           │    - Orchestrates entity objects│              │
+│           │    - Depends only on Entities  │               │
+│           │                               │               │
+│           └───────────────────────────────┘               │
+│                           │                               │
+│           ┌───────────────▼───────────────┐               │
+│           │                               │               │
+│           │ 3. INTERFACE ADAPTERS         │               │
+│           │    - Controllers, Presenters, │               │
+│           │      Gateways                 │               │
+│           │    - Converts data between layers│             │
+│           │                               │               │
+│           └───────────────────────────────┘               │
+│                           │                               │
+│           ┌───────────────▼───────────────┐               │
+│           │                               │               │
+│           │ 4. FRAMEWORKS & DRIVERS       │               │
+│           │    - Frameworks, UI, Web, DB  │               │
+│           │    - Devices, External interfaces│             │
+│           │    - Most volatile components │               │
+│           │                               │               │
+│           └───────────────────────────────┘               │
+│                                                           │
+└───────────────────────────────────────────────────────────┘
+</code></pre>
+                    </div>
+                    
+                    <h3>1. Entities (Domain Layer)</h3>
+                    <p>The Entities layer contains enterprise-wide business rules and represents your domain model:</p>
+                    <ul>
+                        <li>Business objects that encapsulate the most general and high-level rules</li>
+                        <li>Can be used by different applications in the enterprise</li>
+                        <li>Least likely to change when something external changes</li>
+                        <li>No dependencies on outer layers or frameworks</li>
+                    </ul>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Entity Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Domain Entity - Pure business logic
+public class Order
+{
+    public Guid Id { get; private set; }
+    public Customer Customer { get; private set; }
+    public List<OrderItem> Items { get; private set; } = new List<OrderItem>();
+    public OrderStatus Status { get; private set; }
+    public DateTime OrderDate { get; private set; }
+    
+    // Business rule: Constructor ensures valid state
+    public Order(Customer customer)
+    {
+        Id = Guid.NewGuid();
+        Customer = customer ?? throw new ArgumentNullException(nameof(customer));
+        Status = OrderStatus.Created;
+        OrderDate = DateTime.UtcNow;
+    }
+    
+    // Business rule: Can only add items to orders that aren't shipped
+    public void AddItem(Product product, int quantity)
+    {
+        if (Status == OrderStatus.Shipped)
+            throw new InvalidOperationException("Cannot add items to shipped orders");
+            
+        if (quantity <= 0)
+            throw new ArgumentException("Quantity must be positive", nameof(quantity));
+            
+        var existingItem = Items.FirstOrDefault(i => i.Product.Id == product.Id);
+        
+        if (existingItem != null)
+            existingItem.IncreaseQuantity(quantity);
+        else
+            Items.Add(new OrderItem(this, product, quantity));
+    }
+    
+    // Business rule: Calculate total based on items
+    public decimal CalculateTotal()
+    {
+        return Items.Sum(item => item.GetSubtotal());
+    }
+    
+    // Business rule: State transition
+    public void PlaceOrder()
+    {
+        if (Status != OrderStatus.Created)
+            throw new InvalidOperationException("Order has already been placed");
+            
+        if (!Items.Any())
+            throw new InvalidOperationException("Cannot place an order without items");
+            
+        Status = OrderStatus.Placed;
+    }
+    
+    // More business methods...
+}
+</code></pre>
+                    </div>
+                    
+                    <h3>2. Use Cases (Application Layer)</h3>
+                    <p>The Use Cases layer contains application-specific business rules:</p>
+                    <ul>
+                        <li>Orchestrates the flow of data to and from the entities</li>
+                        <li>Implements all use cases of the system</li>
+                        <li>Directs the entities to use their enterprise-wide business rules</li>
+                        <li>Independent of UI, database, frameworks etc.</li>
+                    </ul>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Use Case Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Application Layer - Use Case
+public class PlaceOrderUseCase
+{
+    private readonly IOrderRepository _orderRepository;
+    private readonly ICustomerRepository _customerRepository;
+    private readonly IProductRepository _productRepository;
+    private readonly INotificationService _notificationService;
+    
+    public PlaceOrderUseCase(
+        IOrderRepository orderRepository,
+        ICustomerRepository customerRepository,
+        IProductRepository productRepository,
+        INotificationService notificationService)
+    {
+        _orderRepository = orderRepository;
+        _customerRepository = customerRepository;
+        _productRepository = productRepository;
+        _notificationService = notificationService;
+    }
+    
+    // The use case orchestrates the entities and repositories
+    public async Task<OrderPlacedResult> ExecuteAsync(PlaceOrderRequest request)
+    {
+        // Get necessary domain objects
+        var customer = await _customerRepository.GetByIdAsync(request.CustomerId);
+        if (customer == null)
+            throw new NotFoundException("Customer not found");
+            
+        // Create the order (domain entity)
+        var order = new Order(customer);
+        
+        // Add items to the order
+        foreach (var item in request.Items)
+        {
+            var product = await _productRepository.GetByIdAsync(item.ProductId);
+            if (product == null)
+                throw new NotFoundException($"Product {item.ProductId} not found");
+                
+            // Uses domain logic encapsulated in the entity
+            order.AddItem(product, item.Quantity);
+        }
+        
+        // Place the order (executes domain logic)
+        order.PlaceOrder();
+        
+        // Persist changes
+        await _orderRepository.AddAsync(order);
+        
+        // Side effects
+        await _notificationService.NotifyOrderPlaced(order);
+        
+        // Return result
+        return new OrderPlacedResult
+        {
+            OrderId = order.Id,
+            TotalAmount = order.CalculateTotal(),
+            EstimatedDeliveryDate = DateTime.UtcNow.AddDays(3)
+        };
+    }
+}
+
+// Request DTO
+public class PlaceOrderRequest
+{
+    public Guid CustomerId { get; set; }
+    public List<OrderItemRequest> Items { get; set; } = new List<OrderItemRequest>();
+}
+
+public class OrderItemRequest
+{
+    public Guid ProductId { get; set; }
+    public int Quantity { get; set; }
+}
+
+// Response DTO
+public class OrderPlacedResult
+{
+    public Guid OrderId { get; set; }
+    public decimal TotalAmount { get; set; }
+    public DateTime EstimatedDeliveryDate { get; set; }
+}
+</code></pre>
+                    </div>
+                    
+                    <h3>3. Interface Adapters</h3>
+                    <p>The Interface Adapters layer converts data between the use cases/entities and external frameworks:</p>
+                    <ul>
+                        <li>Adapts data from external agencies to internal formats</li>
+                        <li>Contains controllers, presenters, gateways</li>
+                        <li>Repository implementations (but not interfaces, which belong to inner layers)</li>
+                        <li>Data mappers and translators</li>
+                    </ul>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Controller Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Interface Adapters Layer - REST API Controller
+[ApiController]
+[Route("api/[controller]")]
+public class OrdersController : ControllerBase
+{
+    private readonly PlaceOrderUseCase _placeOrderUseCase;
+    private readonly GetOrderUseCase _getOrderUseCase;
+    
+    public OrdersController(
+        PlaceOrderUseCase placeOrderUseCase,
+        GetOrderUseCase getOrderUseCase)
+    {
+        _placeOrderUseCase = placeOrderUseCase;
+        _getOrderUseCase = getOrderUseCase;
+    }
+    
+    [HttpPost]
+    public async Task<ActionResult<OrderPlacedResult>> CreateOrder(PlaceOrderRequest request)
+    {
+        try
+        {
+            // Call the use case
+            var result = await _placeOrderUseCase.ExecuteAsync(request);
+            
+            // Return appropriate HTTP response
+            return CreatedAtAction(nameof(GetOrder), new { id = result.OrderId }, result);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+    
+    [HttpGet("{id}")]
+    public async Task<ActionResult<OrderDto>> GetOrder(Guid id)
+    {
+        try
+        {
+            var order = await _getOrderUseCase.ExecuteAsync(id);
+            return Ok(order);
+        }
+        catch (NotFoundException)
+        {
+            return NotFound();
+        }
+    }
+}
+</code></pre>
+                    </div>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Repository Implementation Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Interface Adapters Layer - Repository Implementation
+public class SqlOrderRepository : IOrderRepository
+{
+    private readonly ApplicationDbContext _dbContext;
+    
+    public SqlOrderRepository(ApplicationDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+    
+    public async Task<Order> GetByIdAsync(Guid id)
+    {
+        // Query against EF Core
+        var orderEntity = await _dbContext.Orders
+            .Include(o => o.Customer)
+            .Include(o => o.Items)
+            .ThenInclude(i => i.Product)
+            .FirstOrDefaultAsync(o => o.Id == id);
+            
+        if (orderEntity == null)
+            return null;
+            
+        // Map from data model to domain entity
+        // In a real app, you might use AutoMapper or similar
+        return MapToDomainEntity(orderEntity);
+    }
+    
+    public async Task AddAsync(Order order)
+    {
+        // Map from domain entity to data model
+        var orderEntity = MapToDataEntity(order);
+        
+        // Save to database
+        _dbContext.Orders.Add(orderEntity);
+        await _dbContext.SaveChangesAsync();
+    }
+    
+    // Mapping methods...
+    private Order MapToDomainEntity(OrderEntity entity) { /* ... */ }
+    private OrderEntity MapToDataEntity(Order domain) { /* ... */ }
+}
+</code></pre>
+                    </div>
+                    
+                    <h3>4. Frameworks and Drivers</h3>
+                    <p>The outermost layer contains frameworks, tools, and delivery mechanisms:</p>
+                    <ul>
+                        <li>Database implementation details (EF Core, etc.)</li>
+                        <li>Web frameworks (ASP.NET Core, etc.)</li>
+                        <li>UI frameworks (Angular, React, etc.)</li>
+                        <li>External interfaces/APIs</li>
+                        <li>Device drivers, file systems</li>
+                    </ul>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Database Context Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Frameworks & Drivers Layer - EF Core DbContext
+public class ApplicationDbContext : DbContext
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+    
+    public DbSet<OrderEntity> Orders { get; set; }
+    public DbSet<CustomerEntity> Customers { get; set; }
+    public DbSet<ProductEntity> Products { get; set; }
+    public DbSet<OrderItemEntity> OrderItems { get; set; }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Configure database schema
+        modelBuilder.Entity<OrderEntity>(entity => 
+        {
+            entity.ToTable("Orders");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.OrderDate).IsRequired();
+            entity.Property(e => e.Status).HasConversion<string>();
+            
+            entity.HasOne(e => e.Customer)
+                .WithMany(c => c.Orders)
+                .HasForeignKey(e => e.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            entity.HasMany(e => e.Items)
+                .WithOne(i => i.Order)
+                .HasForeignKey(i => i.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+        
+        // More entity configurations...
+    }
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Practical Implementation -->
+                <div class="concept-box">
+                    <h2>4. Practical Implementation</h2>
+                    <p>Moving from theory to practice, let's look at how to implement Clean Architecture in a real project.</p>
+
+                    <h3>Project Structure</h3>
+                    <p>A typical Clean Architecture project in .NET might have this structure:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Project Structure</span>
+                        </div>
+                        <pre><code class="language-plaintext">
+CleanArchitectureSolution/
+├── src/
+│   ├── Domain/                           # Core entities and business rules
+│   │   ├── Entities/
+│   │   ├── Exceptions/
+│   │   ├── ValueObjects/
+│   │   └── Interfaces/                   # Repository interfaces
+│   │
+│   ├── Application/                      # Use cases and application logic
+│   │   ├── Common/
+│   │   │   ├── Interfaces/
+│   │   │   ├── Behaviors/               
+│   │   │   └── Exceptions/
+│   │   ├── Features/                     # Organized by feature
+│   │   │   ├── Orders/
+│   │   │   │   ├── Commands/             # Command handlers (write operations)
+│   │   │   │   │   ├── CreateOrder/
+│   │   │   │   │   └── UpdateOrder/
+│   │   │   │   └── Queries/              # Query handlers (read operations) 
+│   │   │   │       ├── GetOrderById/
+│   │   │   │       └── GetOrdersList/
+│   │   │   └── Products/
+│   │   │   └── Queries/
+│   │   ├── DTOs/                         # Data Transfer Objects
+│   │   └── Mappings/                     # Object mappings
+│   │
+│   ├── Infrastructure/                   # External concerns implementations
+│   │   ├── Persistence/                  # Database-related code
+│   │   │   ├── Configurations/           # EF Core configurations
+│   │   │   ├── Repositories/             # Repository implementations
+│   │   │   ├── ApplicationDbContext.cs
+│   │   │   └── DbInitializer.cs
+│   │   ├── Identity/                     # Authentication & authorization
+│   │   ├── Services/                     # External service implementations
+│   │   └── DependencyInjection.cs        # DI registration
+│   │
+│   └── WebApi/                           # Entry point & delivery mechanism
+│       ├── Controllers/
+│       ├── Filters/
+│       ├── Program.cs
+│       └── appsettings.json
+│
+└── tests/
+    ├── Domain.UnitTests/
+    ├── Application.UnitTests/
+    ├── Infrastructure.UnitTests/
+    └── WebApi.IntegrationTests/
+</code></pre>
+                    </div>
+                    
+                    <h3>Dependency Injection</h3>
+                    <p>Clean Architecture relies heavily on dependency injection to maintain the dependency rule:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">DI Registration Example</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// In Infrastructure/DependencyInjection.cs
+public static class DependencyInjection
+{
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services, 
+        IConfiguration configuration)
+    {
+        // Register database context
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection")));
+                
+        // Register repositories
+        services.AddScoped<IOrderRepository, SqlOrderRepository>();
+        services.AddScoped<IProductRepository, SqlProductRepository>();
+        services.AddScoped<ICustomerRepository, SqlCustomerRepository>();
+        
+        // Register infrastructure services
+        services.AddScoped<IEmailService, SmtpEmailService>();
+        services.AddScoped<INotificationService, NotificationService>();
+        
+        // More registrations...
+        
+        return services;
+    }
+}
+
+// In Application/DependencyInjection.cs
+public static class DependencyInjection
+{
+    public static IServiceCollection AddApplication(this IServiceCollection services)
+    {
+        // Register application services
+        services.AddScoped<PlaceOrderUseCase>();
+        services.AddScoped<GetOrderUseCase>();
+        
+        // Or use MediatR for CQRS
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(
+            typeof(DependencyInjection).Assembly));
+            
+        // Register AutoMapper
+        services.AddAutoMapper(Assembly.GetExecutingAssembly());
+        
+        // Register validation behaviors
+        services.AddTransient(typeof(IPipelineBehavior<,>), 
+            typeof(ValidationBehavior<,>));
+            
+        return services;
+    }
+}
+
+// In Program.cs
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- CQRS Pattern -->
+                <div class="concept-box">
+                    <h2>5. CQRS with Clean Architecture</h2>
+                    <p>Command Query Responsibility Segregation (CQRS) pairs naturally with Clean Architecture for more complex applications.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">CQRS Pattern Diagram</span>
+                        </div>
+                        <pre><code class="language-plaintext">
+┌───────────────────────────────────────────────────────────┐
+│                                                           │
+│                     CLIENT/UI                             │
+│                                                           │
+└───────────┬───────────────────────────┬───────────────────┘
+            │                           │
+            ▼                           ▼
+┌───────────────────────┐   ┌───────────────────────────────┐
+│                       │   │                               │
+│    COMMAND STACK      │   │        QUERY STACK            │
+│    (Write Model)      │   │        (Read Model)           │
+│                       │   │                               │
+├───────────────────────┤   ├───────────────────────────────┤
+│                       │   │                               │
+│  Command Controllers  │   │     Query Controllers         │
+│                       │   │                               │
+├───────────────────────┤   ├───────────────────────────────┤
+│                       │   │                               │
+│  Command Handlers     │   │     Query Handlers            │
+│                       │   │                               │
+├───────────────────────┤   ├───────────────────────────────┤
+│                       │   │                               │
+│  Domain Model         │   │     Read Models/DTOs          │
+│                       │   │                               │
+└────────────┬──────────┘   └────────────────┬──────────────┘
+             │                               │
+             ▼                               ▼
+┌────────────────────────┐      ┌─────────────────────────────┐
+│                        │      │                             │
+│  Write Database        │      │  Read Database              │
+│  (Normalized)          │ ───> │  (Denormalized)             │
+│                        │      │                             │
+└────────────────────────┘      └─────────────────────────────┘
+</code></pre>
+                    </div>
+                    
+                    <h3>Commands (Write Operations)</h3>
+                    <p>Commands modify state but don't return data:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Command Example with MediatR</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Command (Request)
+public class CreateOrderCommand : IRequest<Guid>
+{
+    public Guid CustomerId { get; set; }
+    public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
+}
+
+public class OrderItemDto
+{
+    public Guid ProductId { get; set; }
+    public int Quantity { get; set; }
+}
+
+// Command Validator (using FluentValidation)
+public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
+{
+    public CreateOrderCommandValidator()
+    {
+        RuleFor(x => x.CustomerId).NotEmpty().WithMessage("Customer ID is required");
+        RuleFor(x => x.Items).NotEmpty().WithMessage("Order must contain at least one item");
+        RuleForEach(x => x.Items).SetValidator(new OrderItemDtoValidator());
+    }
+}
+
+public class OrderItemDtoValidator : AbstractValidator<OrderItemDto>
+{
+    public OrderItemDtoValidator()
+    {
+        RuleFor(x => x.ProductId).NotEmpty().WithMessage("Product ID is required");
+        RuleFor(x => x.Quantity).GreaterThan(0).WithMessage("Quantity must be greater than zero");
+    }
+}
+
+// Command Handler
+public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Guid>
+{
+    private readonly IOrderRepository _orderRepository;
+    private readonly ICustomerRepository _customerRepository;
+    private readonly IProductRepository _productRepository;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public CreateOrderCommandHandler(
+        IOrderRepository orderRepository,
+        ICustomerRepository customerRepository,
+        IProductRepository productRepository,
+        IUnitOfWork unitOfWork)
+    {
+        _orderRepository = orderRepository;
+        _customerRepository = customerRepository;
+        _productRepository = productRepository;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<Guid> Handle(CreateOrderCommand command, CancellationToken cancellationToken)
+    {
+        // Fetch domain entities
+        var customer = await _customerRepository.GetByIdAsync(command.CustomerId, cancellationToken);
+        if (customer == null)
+            throw new NotFoundException($"Customer with ID {command.CustomerId} not found");
+
+        // Create domain entity using domain logic
+        var order = new Order(customer);
+
+        // Add items to order using domain logic
+        foreach (var itemDto in command.Items)
+        {
+            var product = await _productRepository.GetByIdAsync(itemDto.ProductId, cancellationToken);
+            if (product == null)
+                throw new NotFoundException($"Product with ID {itemDto.ProductId} not found");
+
+            order.AddItem(product, itemDto.Quantity);
+        }
+
+        // Place the order
+        order.PlaceOrder();
+
+        // Persist changes
+        await _orderRepository.AddAsync(order, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return order.Id;
+    }
+}
+</code></pre>
+                    </div>
+                    
+                    <h3>Queries (Read Operations)</h3>
+                    <p>Queries retrieve data but don't modify state:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Query Example with MediatR</span>
+                        </div>
+                        <pre><code class="language-csharp">
+// Query (Request)
+public class GetOrderQuery : IRequest<OrderDto>
+{
+    public Guid OrderId { get; set; }
+}
+
+// Response DTO
+public class OrderDto
+{
+    public Guid Id { get; set; }
+    public string CustomerName { get; set; }
+    public DateTime OrderDate { get; set; }
+    public string Status { get; set; }
+    public decimal TotalAmount { get; set; }
+    public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
+}
+
+public class OrderItemDto
+{
+    public Guid ProductId { get; set; }
+    public string ProductName { get; set; }
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+    public decimal Subtotal { get; set; }
+}
+
+// Query Handler
+public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, OrderDto>
+{
+    private readonly IOrderRepository _orderRepository;
+    private readonly IMapper _mapper;
+
+    public GetOrderQueryHandler(IOrderRepository orderRepository, IMapper mapper)
+    {
+        _orderRepository = orderRepository;
+        _mapper = mapper;
+    }
+
+    public async Task<OrderDto> Handle(GetOrderQuery request, CancellationToken cancellationToken)
+    {
+        var order = await _orderRepository.GetByIdWithDetailsAsync(request.OrderId, cancellationToken);
+        
+        if (order == null)
+            throw new NotFoundException($"Order with ID {request.OrderId} not found");
+            
+        // Map domain entity to DTO
+        return _mapper.Map<OrderDto>(order);
+    }
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Vertical Slice Architecture -->
+                <div class="concept-box">
+                    <h2>6. Vertical Slice Architecture</h2>
+                    <p>While traditional Clean Architecture organizes code by technical layers, Vertical Slice Architecture organizes by features or use cases.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Layer-Based vs. Vertical Slice Architecture</span>
+                        </div>
+                        <pre><code class="language-plaintext">
+┌───────────────────────────────────────────────────────────┐
+│                                                           │
+│  HORIZONTAL LAYERS (TRADITIONAL)     VERTICAL SLICES      │
+│                                                           │
+│  ┌───────────────────────────┐      ┌───────┐┌───────┐    │
+│  │        UI / API           │      │Feature│Feature │    │
+│  ├───────────────────────────┤      │   A   │   B    │    │
+│  │      APPLICATION          │      │       │        │    │
+│  ├───────────────────────────┤      │UI     │UI      │    │
+│  │        DOMAIN             │      │App    │App     │    │
+│  ├───────────────────────────┤      │Domain │Domain  │    │
+│  │     INFRASTRUCTURE        │      │Infra  │Infra   │    │
+│  └───────────────────────────┘      └───────┘└───────┘    │
+│                                                           │
+│  Cross-cutting changes require      Changes are isolated  │
+│  updates across multiple layers     to a single feature   │
+│                                                           │
+└───────────────────────────────────────────────────────────┘
+</code></pre>
+                    </div>
+                    
+                    <h3>Benefits of Vertical Slice Architecture</h3>
+                    <ul>
+                        <li>Feature cohesion - All code related to a feature is located together</li>
+                        <li>Reduced coupling between features</li>
+                        <li>Easier to understand individual features</li>
+                        <li>Changes are isolated to a single vertical slice</li>
+                        <li>Teams can own entire features instead of layers</li>
+                    </ul>
+                    
+                    <h3>Feature Folder Structure</h3>
+                    <p>A typical vertical slice implementation might organize code like this:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Vertical Slice Project Structure</span>
+                        </div>
+                        <pre><code class="language-plaintext">
+CleanArchitectureSolution/
+├── src/
+│   ├── Core/                            # Shared domain entities and abstractions
+│   │   ├── Entities/
+│   │   ├── Exceptions/
+│   │   └── Interfaces/
+│   │
+│   ├── Features/                        # Organized by business feature
+│   │   ├── Orders/
+│   │   │   ├── CreateOrder/             # Everything for this feature slice
+│   │   │   │   ├── CreateOrderCommand.cs
+│   │   │   │   ├── CreateOrderValidator.cs
+│   │   │   │   ├── CreateOrderHandler.cs
+│   │   │   │   └── CreateOrderEndpoint.cs
+│   │   │   │
+│   │   │   ├── GetOrder/                # Another feature slice
+│   │   │   │   ├── GetOrderQuery.cs
+│   │   │   │   ├── GetOrderHandler.cs
+│   │   │   │   ├── OrderDto.cs
+│   │   │   │   └── GetOrderEndpoint.cs
+│   │   │   │
+│   │   │   └── OrdersController.cs      # Aggregates endpoints for this feature area
+│   │   │
+│   │   ├── Products/                    # Another feature area
+│   │   │   ├── CreateProduct/
+│   │   │   ├── UpdateProduct/
+│   │   │   └── ...
+│   │
+│   ├── Infrastructure/                  # Shared infrastructure concerns
+│   │   ├── Persistence/
+│   │   ├── Identity/
+│   │   └── Services/
+│   │
+│   └── WebApi/                          # Entry point
+│       ├── Program.cs
+│       ├── appsettings.json
+│       └── DependencyInjection.cs
+│
+└── tests/
+    ├── Features.UnitTests/              # Tests organized by feature
+    │   ├── Orders/
+    │   │   ├── CreateOrderTests.cs
+    │   │   └── GetOrderTests.cs
+    │   └── Products/
+    └── Api.IntegrationTests/
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Testing in Clean Architecture -->
+                <div class="concept-box">
+                    <h2>7. Testing Clean Architecture</h2>
+                    <p>One of the main benefits of Clean Architecture is its testability. Each layer can be tested in isolation.</p>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <h4>Domain Tests</h4>
+                                <ul>
+                                    <li>Test domain entities and business rules</li>
+                                    <li>No external dependencies</li>
+                                    <li>Pure unit tests</li>
+                                    <li>Fastest to run</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <h4>Application Tests</h4>
+                                <ul>
+                                    <li>Test use cases with mocked dependencies</li>
+                                    <li>Focus on orchestration logic</li>
+                                    <li>Use test doubles for repositories and services</li>
+                                    <li>Also considered unit tests</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <h4>Infrastructure Tests</h4>
+                                <ul>
+                                    <li>Test repository implementations, services</li>
+                                    <li>Might use in-memory databases</li>
+                                    <li>Integration tests for external dependencies</li>
+                                    <li>Slower than unit tests</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <h4>API/UI Tests</h4>
+                                <ul>
+                                    <li>End-to-end tests of the entire application</li>
+                                    <li>Test from the user's perspective</li>
+                                    <li>Usually fewer in number</li>
+                                    <li>Slowest to run</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Domain Tests Example</h3>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Domain Entity Tests</span>
+                        </div>
+                        <pre><code class="language-csharp">
+[Fact]
+public void PlaceOrder_WithItems_ChangesStatusToPlaced()
+{
+    // Arrange
+    var customer = new Customer("John Doe", "john@example.com");
+    var order = new Order(customer);
+    var product = new Product("Test Product", "Description", 10.0m);
+    
+    // Act
+    order.AddItem(product, 2);
+    order.PlaceOrder();
+    
+    // Assert
+    Assert.Equal(OrderStatus.Placed, order.Status);
+}
+
+[Fact]
+public void AddItem_WithNegativeQuantity_ThrowsException()
+{
+    // Arrange
+    var customer = new Customer("John Doe", "john@example.com");
+    var order = new Order(customer);
+    var product = new Product("Test Product", "Description", 10.0m);
+    
+    // Act & Assert
+    var exception = Assert.Throws<ArgumentException>(() => 
+        order.AddItem(product, -1));
+        
+    Assert.Equal("Quantity must be positive (Parameter 'quantity')", exception.Message);
+}
+
+[Fact]
+public void AddItem_ToShippedOrder_ThrowsException()
+{
+    // Arrange
+    var customer = new Customer("John Doe", "john@example.com");
+    var order = new Order(customer);
+    var product = new Product("Test Product", "Description", 10.0m);
+    
+    // Set order status to shipped using reflection (for testing)
+    typeof(Order).GetProperty("Status").SetValue(order, OrderStatus.Shipped);
+    
+    // Act & Assert
+    Assert.Throws<InvalidOperationException>(() => 
+        order.AddItem(product, 1));
+}
+</code></pre>
+                    </div>
+                    
+                    <h3>Application Tests Example</h3>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-tag">Use Case Tests</span>
+                        </div>
+                        <pre><code class="language-csharp">
+public class PlaceOrderUseCaseTests
+{
+    private readonly Mock<IOrderRepository> _orderRepositoryMock;
+    private readonly Mock<ICustomerRepository> _customerRepositoryMock;
+    private readonly Mock<IProductRepository> _productRepositoryMock;
+    private readonly Mock<INotificationService> _notificationServiceMock;
+    private readonly PlaceOrderUseCase _useCase;
+    
+    public PlaceOrderUseCaseTests()
+    {
+        _orderRepositoryMock = new Mock<IOrderRepository>();
+        _customerRepositoryMock = new Mock<ICustomerRepository>();
+        _productRepositoryMock = new Mock<IProductRepository>();
+        _notificationServiceMock = new Mock<INotificationService>();
+        
+        _useCase = new PlaceOrderUseCase(
+            _orderRepositoryMock.Object,
+            _customerRepositoryMock.Object,
+            _productRepositoryMock.Object,
+            _notificationServiceMock.Object);
+    }
+    
+    [Fact]
+    public async Task ExecuteAsync_WithValidRequest_ReturnsOrderPlacedResult()
+    {
+        // Arrange
+        var customerId = Guid.NewGuid();
+        var productId = Guid.NewGuid();
+        
+        var customer = new Customer("John Doe", "john@example.com");
+        var product = new Product("Test Product", "Description", 10.0m);
+        
+        _customerRepositoryMock.Setup(r => r.GetByIdAsync(customerId))
+            .ReturnsAsync(customer);
+            
+        _productRepositoryMock.Setup(r => r.GetByIdAsync(productId))
+            .ReturnsAsync(product);
+            
+        var request = new PlaceOrderRequest
+        {
+            CustomerId = customerId,
+            Items = new List<OrderItemRequest>
+            {
+                new OrderItemRequest { ProductId = productId, Quantity = 2 }
+            }
+        };
+        
+        // Act
+        var result = await _useCase.ExecuteAsync(request);
+        
+        // Assert
+        Assert.NotEqual(Guid.Empty, result.OrderId);
+        Assert.Equal(20.0m, result.TotalAmount);
+        
+        _orderRepositoryMock.Verify(r => r.AddAsync(It.IsAny<Order>()), Times.Once);
+        _notificationServiceMock.Verify(s => s.NotifyOrderPlaced(It.IsAny<Order>()), Times.Once);
+    }
+    
+    [Fact]
+    public async Task ExecuteAsync_WithNonExistentCustomer_ThrowsNotFoundException()
+    {
+        // Arrange
+        var customerId = Guid.NewGuid();
+        
+        _customerRepositoryMock.Setup(r => r.GetByIdAsync(customerId))
+            .ReturnsAsync((Customer)null);
+            
+        var request = new PlaceOrderRequest
+        {
+            CustomerId = customerId,
+            Items = new List<OrderItemRequest>()
+        };
+        
+        // Act & Assert
+        await Assert.ThrowsAsync<NotFoundException>(() => 
+            _useCase.ExecuteAsync(request));
+    }
+}
+</code></pre>
+                    </div>
+                </div>
+
+                <!-- Common Pitfalls -->
+                <div class="concept-box">
+                    <h2>8. Common Pitfalls and Best Practices</h2>
+                    <p>Even with a well-designed architecture, there are common mistakes to avoid.</p>
+
+                    <div class="warning-box">
+                        <h3>Common Pitfalls ⚠️</h3>
+                        <ul class="simple-list">
+                            <li>❌ <strong>Domain layer dependent on infrastructure</strong> - Violates the dependency rule</li>
+                            <li>❌ <strong>Anemic domain model</strong> - Entities without behavior, just data containers</li>
+                            <li>❌ <strong>Too many layers</strong> - Over-engineering leads to complexity</li>
+                            <li>❌ <strong>Exposing domain entities to presentation</strong> - Violates separation of concerns</li>
+                            <li>❌ <strong>Not using abstraction for external dependencies</strong> - Makes testing difficult</li>
+                            <li>❌ <strong>Circular dependencies</strong> - Creates tight coupling and makes changes harder</li>
+                            <li>❌ <strong>Lazy loading in domain entities</strong> - Creates hidden database dependencies</li>
+                        </ul>
+                    </div>
+
+                    <h3>Best Practices</h3>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Principle</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Domain-Driven Design</td>
+                                <td>Apply DDD principles to create a rich domain model that encapsulates business logic</td>
+                            </tr>
+                            <tr>
+                                <td>Explicit Dependencies</td>
+                                <td>Make all dependencies explicit through constructor injection</td>
+                            </tr>
+                            <tr>
+                                <td>Immutable Value Objects</td>
+                                <td>Use immutable objects for values that don't have identity, like Money, Address, etc.</td>
+                            </tr>
+                            <tr>
+                                <td>Persistence Ignorance</td>
+                                <td>Design domain entities without knowledge of how they'll be persisted</td>
+                            </tr>
+                            <tr>
+                                <td>Command-Query Separation</td>
+                                <td>Methods should either change state or return values, not both</td>
+                            </tr>
+                            <tr>
+                                <td>Use DTOs for Boundaries</td>
+                                <td>Never expose domain objects across boundaries; use DTOs for input/output</td>
+                            </tr>
+                            <tr>
+                                <td>Fail Fast</td>
+                                <td>Validate input early and throw exceptions immediately when preconditions are violated</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Real World Examples -->
+                <div class="concept-box">
+                    <h2>9. Real-World Examples and Case Studies</h2>
+                    
+                    <div class="example-box">
+                        <h3>Case Study: E-commerce Platform Migration</h3>
+                        <div class="case-study">
+                            <h4>Challenge</h4>
+                            <p>A growing e-commerce company needed to migrate from a monolithic application to a more maintainable architecture while adding new features.</p>
+                            
+                            <h4>Approach</h4>
+                            <ul>
+                                <li>Applied Clean Architecture principles to separate core business logic from infrastructure</li>
+                                <li>Implemented domain model with rich business rules</li>
+                                <li>Used CQRS pattern to separate read and write operations</li>
+                                <li>Gradually migrated features to the new architecture while maintaining the existing system</li>
+                            </ul>
+                            
+                            <h4>Results</h4>
+                            <ul>
+                                <li>Reduced development time for new features by 40%</li>
+                                <li>Improved test coverage from 45% to 85%</li>
+                                <li>Successfully added new capabilities without disrupting existing functionality</li>
+                                <li>Reduced bugs in production by 60% due to better testing</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="example-box mt-4">
+                        <h3>Case Study: Financial Services API</h3>
+                        <div class="case-study">
+                            <h4>Challenge</h4>
+                            <p>A financial services company needed to build a new API that could handle complex business rules while maintaining strict security and compliance requirements.</p>
+                            
+                            <h4>Approach</h4>
+                            <ul>
+                                <li>Implemented Clean Architecture with clear separation of domain, application, and infrastructure layers</li>
+                                <li>Modeled complex financial rules in the domain layer, isolating them from technical concerns</li>
+                                <li>Implemented comprehensive validation at multiple levels</li>
+                                <li>Used interface adapters to isolate external dependencies and security mechanisms</li>
+                            </ul>
+                            
+                            <h4>Results</h4>
+                            <ul>
+                                <li>Passed security audits with minimal issues</li>
+                                <li>Able to adapt to regulatory changes by modifying only specific parts of the system</li>
+                                <li>Maintained 99.9% uptime during high-demand periods</li>
+                                <li>Simplified onboarding of new developers due to clear architectural boundaries</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary and Conclusion -->
+                <div class="section-divider"></div>
+                <div class="summary-box">
+                    <h2>Key Takeaways: Clean Architecture 🌟</h2>
+                    <ul>
+                        <li>✅ <strong>The Dependency Rule</strong> - Dependencies point inward toward higher-level policies</li>
+                        <li>✅ <strong>Domain-Centric</strong> - Business rules are at the center, infrastructure is on the outside</li>
+                        <li>✅ <strong>Separation of Concerns</strong> - Each layer has a specific responsibility</li>
+                        <li>✅ <strong>Testability</strong> - Architecture designed for easy testing of all components</li>
+                        <li>✅ <strong>Framework Independence</strong> - Core business logic is independent of frameworks and tools</li>
+                        <li>✅ <strong>UI Independence</strong> - Business logic works without UI, allowing UI to easily change</li>
+                        <li>✅ <strong>Database Independence</strong> - Business logic is not tied to a specific database or ORM</li>
+                    </ul>
+                    
+                    <h3>When to Use Clean Architecture</h3>
+                    <p>Clean Architecture is most beneficial for:</p>
+                    <ul>
+                        <li>Large, complex applications with significant business logic</li>
+                        <li>Long-lived applications that will evolve over time</li>
+                        <li>Projects where requirements are likely to change</li>
+                        <li>Applications where testability is crucial</li>
+                        <li>Systems that may need to support multiple interfaces or data sources</li>
+                    </ul>
+                    
+                    <p>For smaller applications or quick prototypes, the overhead of Clean Architecture might not be justified. Always consider the appropriate level of architecture for your specific needs.</p>
+                </div>
+
+                <!-- Resources -->
+                <div class="resources-box mt-5">
+                    <h3>Further Learning Resources 📚</h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="resource-card">
+                                <h4>Books</h4>
+                                <ul>
+                                    <li>"Clean Architecture" by Robert C. Martin</li>
+                                    <li>"Domain-Driven Design" by Eric Evans</li>
+                                    <li>"Implementing Domain-Driven Design" by Vaughn Vernon</li>
+                                    <li>"Architecture Patterns with Python" by Harry Percival & Bob Gregory</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="resource-card">
+                                <h4>Online Resources</h4>
+                                <ul>
+                                    <li><a href="https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html" target="_blank">The Clean Architecture</a> - Uncle Bob's original article</li>
+                                    <li><a href="https://github.com/jasontaylordev/CleanArchitecture" target="_blank">Clean Architecture Solution Template</a> - Jason Taylor's template for .NET</li>
+                                    <li><a href="https://docs.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures" target="_blank">Common Web Application Architectures</a> - Microsoft documentation</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+ 
+<!-- End Blog Content Section -->
+
+
+<!-- footer -->
+<div class="container">
+    <footer class="footer">
+        <div class="social-links text-right m-auto ml-sm-auto">
+            <a href="https://drive.google.com/file/d/1HYu_dCcyu5KXcBOSugAkFz6fCRA66HlO/view?usp=drive_link"
+                target="_blank" rel="noopener noreferrer" title="Download CV"><i class="ti-download"></i></a>
+            <a href="https://github.com/abanoubma" target="_blank" rel="noopener noreferrer" title="GitHub"><i
+                    class="ti-github"></i></a>
+            <a href="https://www.linkedin.com/in/abanoubmagdy/" target="_blank" rel="noopener noreferrer"
+                title="LinkedIn"><i class="ti-linkedin"></i></a>
+            <a href="https://www.facebook.com/abanoubmagdy" target="_blank" rel="noopener noreferrer"
+                title="Facebook"><i class="ti-facebook"></i></a>
+        </div>
+    </footer>
+</div> <!-- end of page footer -->
+
+<!-- core  -->
+<script src="../../assets/vendors/jquery/jquery-3.4.1.js"></script>
+<script src="../../assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+
+<!-- bootstrap 3 affix -->
+<script src="../../assets/vendors/bootstrap/bootstrap.affix.js"></script>
+
+<!-- Meyawo js -->
+<script src="../../assets/js/meyawo.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-csharp.min.js"></script>
+
+</body>
+
+</html>
