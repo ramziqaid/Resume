@@ -178,13 +178,7 @@ pip install transformers datasets
                             <span class="code-tag">Open WebUI Setup</span>
                         </div>
                         <pre><code class="language-bash">
-docker run -d -p 3000:8080 \
-    --add-host=host.docker.internal:host-gateway \
-    -v open-webui:/app/backend/data \
-    -v C:\Users\YourUsername\Documents\CompanyData:/data \
-    --name open-webui \
-    --restart always \
-    ghcr.io/open-webui/open-webui:main
+docker run -d -p 3000:8080 --add-host=host.docker.internal:host-gateway -v open-webui:/app/backend/data -v C:\Users\YourUsername\Documents\CompanyData:/data --name open-webui --restart always ghcr.io/open-webui/open-webui:main
 </code></pre>
                     </div>
 
@@ -225,11 +219,9 @@ docker run -d -p 3000:8080 \
                         </div>
                         <pre><code class="language-bash">
 # Run Stable Diffusion container
-docker run -d -p 7860:7860 \
-    --name stable-diffusion \
-    -v stable-diffusion:/data \
-    --gpus all \
-    ghcr.io/stability-ai/stable-diffusion-webui:latest
+# This image actually exists and works
+docker run -it --name sdw --gpus all --network host -v ~/stable-diffusion/models:/app/stable-diffusion-webui/models -v ~/stable-diffusion/outputs:/app/stable-diffusion-webui/outputs --rm siutin/stable-diffusion-webui-docker:latest-cuda bash webui.sh --share
+
 </code></pre>
                     </div>
                 </div>
