@@ -12357,3 +12357,14 @@ pre .code {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.blog-card-img {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+.blog-card-img:hover {
+  transform: scale(1.02);
+}
+.blog-hero {
+  padding-top: 60px !important;
+}
