@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Best Practices - Abanoub Magdy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Alex+Brush&family=Questrial&display=swap" rel="stylesheet">
+    <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #1F1F1F;
+            color: #FFFFFF;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(31, 31, 31, 0.95);
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(21, 185, 185, 0.2);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo {
+            font-family: 'Alex Brush', cursive;
+            font-size: 26px;
+            color: #FFFFFF;
+            text-decoration: none;
+            background: linear-gradient(135deg, #ebffff, #6c5dcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #989898;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #15B9B9, #3C1DFF);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #15B9B9;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        /* Blog Hero Section */
+        .blog-hero {
+            padding: 120px 0 80px;
+            background: linear-gradient(135deg, rgba(21, 185, 185, 0.1) 0%, rgba(60, 29, 255, 0.1) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(21, 185, 185, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(60, 29, 255, 0.15) 0%, transparent 50%);
+            animation: heroFloat 25s ease-in-out infinite;
+        }
+
+        @keyframes heroFloat {
+            0%, 100% { transform: translateX(0px) translateY(0px) rotate(0deg); }
+            25% { transform: translateX(-15px) translateY(-20px) rotate(45deg); }
+            50% { transform: translateX(15px) translateY(-10px) rotate(90deg); }
+            75% { transform: translateX(-8px) translateY(-15px) rotate(135deg); }
+        }
+
+        .blog-hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .blog-title {
+            font-size: 48px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #FFFFFF, #E3E1E1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .blog-subtitle {
+            font-size: 20px;
+            color: #15B9B9;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .blog-meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .blog-meta span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #E3E1E1;
+            font-size: 14px;
+        }
+
+        .blog-meta i {
+            color: #15B9B9;
+            font-size: 16px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(21, 185, 185, 0.2), rgba(60, 29, 255, 0.2));
+            color: #15B9B9;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(21, 185, 185, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, rgba(21, 185, 185, 0.3), rgba(60, 29, 255, 0.3));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(21, 185, 185, 0.2);
+            color: #15B9B9;
+            text-decoration: none;
+        }
+
+        /* Blog Content */
+        .blog-content {
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .blog-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .content-section {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(21, 185, 185, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+        }
+
+        .content-section:hover {
+            border-color: rgba(21, 185, 185, 0.4);
+            box-shadow: 0 10px 30px rgba(21, 185, 185, 0.1);
+        }
+
+        .content-section h2 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #15B9B9;
+            border-bottom: 2px solid rgba(21, 185, 185, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .content-section h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 30px 0 15px;
+            color: #FFFFFF;
+        }
+
+        .content-section h4 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 25px 0 12px;
+            color: #15B9B9;
+        }
+
+        .content-section p {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            color: #E3E1E1;
+        }
+
+        .content-section ul, .content-section ol {
+            margin-bottom: 20px;
+            padding-left: 30px;
+        }
+
+        .content-section li {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 8px;
+            color: #E3E1E1;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(21, 185, 185, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(21, 185, 185, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .feature-card h4 {
+            color: #15B9B9;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .code-block {
+            background: #2D2D2D;
+            border: 1px solid rgba(21, 185, 185, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: #E3E1E1;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .code-block code {
+            color: #15B9B9;
+        }
+
+        .warning-box {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #FFC107;
+        }
+
+        .warning-box h4 {
+            color: #FFC107;
+            margin-bottom: 10px;
+        }
+
+        .danger-box {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #DC3545;
+        }
+
+        .danger-box h4 {
+            color: #DC3545;
+            margin-bottom: 10px;
+        }
+
+        .success-box {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #28A745;
+        }
+
+        .success-box h4 {
+            color: #28A745;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .blog-title {
+                font-size: 32px;
+            }
+
+            .blog-subtitle {
+                font-size: 16px;
+            }
+
+            .blog-meta {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            .content-section h2 {
+                font-size: 24px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1F1F1F;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #15B9B9;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Scroll Animations */
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="../../blogs.html" class="logo">Abanoub Magdy</a>
+                <ul class="nav-links" id="navLinks">                   
+                    <li><a href="../../blogs.html#blog">Blog</a></li>
+                    <li><a href="../../resume.html">Resume</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Blog Hero Section -->
+    <section class="blog-hero">
+        <div class="container">
+            <div class="blog-hero-content">
+                <h1 class="blog-title">File Upload Best Practices</h1>
+                <p class="blog-subtitle">Designing Reliable, Secure, and High-Performance File Upload Systems</p>
+                <div class="blog-meta">
+                    <span><i class="ion-calendar"></i> March 2025</span>
+                    <span><i class="ion-clock"></i> 25 min read</span>
+                    <span><i class="ion-person"></i> Abanoub Magdy</span>
+                </div>
+                    <a href="../../blogs.html" class="back-btn">
+                        <i class="ion-ios-arrow-left"></i> Back to Blog
+                    </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Content -->
+    <section class="blog-content">
+        <div class="container">
+            <div class="blog-container">
+                <!-- Introduction -->
+                <div class="content-section scroll-animate">
+                    <h2>Introduction</h2>
+                    <p>File uploads are one of the most vulnerable and challenging features to implement securely in web applications. This comprehensive guide covers security, performance, and reliability best practices for building robust file upload systems.</p>
+                    
+                    <div class="danger-box">
+                        <h4>🚨 Critical Security Warning</h4>
+                        <p>Improperly implemented file uploads can lead to:</p>
+                        <ul>
+                            <li>Remote code execution attacks</li>
+                            <li>Server compromise through malicious files</li>
+                            <li>Data breaches and unauthorized access</li>
+                            <li>Denial of service attacks</li>
+                            <li>Storage exhaustion and system crashes</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Security Architecture -->
+                <div class="content-section scroll-animate">
+                    <h2>1. Security Architecture</h2>
+                    <p>File uploads require a defense-in-depth approach with multiple security layers working together.</p>
+                    
+                    <h3>Defense-in-Depth Strategy</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Client-Side Validation</h4>
+                            <p>First line of defense (never your only one):</p>
+                            <ul>
+                                <li>File type restrictions</li>
+                                <li>Size limitations</li>
+                                <li>Basic content validation</li>
+                                <li>Preview generation</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Server-Side Validation</h4>
+                            <p>Your critical security layer:</p>
+                            <ul>
+                                <li>MIME type verification</li>
+                                <li>Magic number checking</li>
+                                <li>Size enforcement</li>
+                                <li>Malware scanning</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3>File Type Validation</h3>
+                    <div class="code-block">
+                        <pre><code>// C# Example: Comprehensive file validation
+public class FileValidator
+{
+    private static readonly Dictionary&lt;string, List&lt;byte[]&gt;&gt; FileSignatures = new()
+    {
+        { ".jpeg", new List&lt;byte[]&gt; { new byte[] { 0xFF, 0xD8, 0xFF } } },
+        { ".jpg", new List&lt;byte[]&gt; { new byte[] { 0xFF, 0xD8, 0xFF } } },
+        { ".png", new List&lt;byte[]&gt; { new byte[] { 0x89, 0x50, 0x4E, 0x47 } } },
+        { ".pdf", new List&lt;byte[]&gt; { new byte[] { 0x25, 0x50, 0x44, 0x46 } } }
+    };
+
+    public static bool IsValidFile(IFormFile file, string[] allowedExtensions, long maxSize)
+    {
+        // Check file size
+        if (file.Length > maxSize)
+            return false;
+
+        // Check extension
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!allowedExtensions.Contains(extension))
+            return false;
+
+        // Check magic numbers
+        using var reader = new BinaryReader(file.OpenReadStream());
+        var headerBytes = reader.ReadBytes(8);
+        
+        return FileSignatures[extension].Any(signature => 
+            headerBytes.Take(signature.Length).SequenceEqual(signature));
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>⚠️ High-Risk File Types</h4>
+                        <p>These file types require special handling or should be prohibited:</p>
+                        <ul>
+                            <li><strong>Executable files:</strong> .exe, .dll, .bat, .cmd, .msi</li>
+                            <li><strong>Scripts:</strong> .js, .php, .py, .rb, .pl</li>
+                            <li><strong>System files:</strong> .sys, .ini, .config</li>
+                            <li><strong>Archive files:</strong> .zip, .rar, .tar.gz (may contain malicious files)</li>
+                            <li><strong>Office documents with macros:</strong> .docm, .xlsm</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Secure Storage -->
+                <div class="content-section scroll-animate">
+                    <h2>2. Secure Storage Design</h2>
+                    
+                    <h3>Storage Architecture</h3>
+                    <div class="code-block">
+                        <pre><code>┌─────────────────────────────────────────────────┐
+│               Storage Architecture               │
+└─────────────────────────────────────────────────┘
+┌────────────┐    ┌────────────┐    ┌─────────────┐
+│  Original   │    │Transformation│   │   Secure    │
+│ Upload Zone │───>│   Pipeline  │──>│ Storage Zone │
+└────────────┘    └────────────┘    └─────────────┘
+      ▲                 │                  │
+      │                 ▼                  ▼
+┌────────────┐    ┌────────────┐    ┌─────────────┐
+│  Untrusted │    │  Security   │    │  Controlled │
+│   Content  │    │  Scanning   │    │   Access    │
+└────────────┘    └────────────┘    └─────────────┘</code></pre>
+                    </div>
+
+                    <h3>Secure File Storage Implementation</h3>
+                    <div class="code-block">
+                        <pre><code>public class SecureFileStorage
+{
+    private readonly string _secureStoragePath;
+    private readonly ILogger&lt;SecureFileStorage&gt; _logger;
+
+    public async Task&lt;string&gt; StoreFileSecurely(IFormFile file, string userId)
+    {
+        // Generate secure filename
+        var secureFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+        var userDirectory = Path.Combine(_secureStoragePath, userId);
+        
+        // Create user directory if not exists
+        Directory.CreateDirectory(userDirectory);
+        
+        var filePath = Path.Combine(userDirectory, secureFileName);
+        
+        // Store file outside web root
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+        
+        // Set restrictive permissions (Unix/Linux)
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || 
+            RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            File.SetUnixFileMode(filePath, 
+                UnixFileMode.UserRead | UnixFileMode.UserWrite);
+        }
+        
+        return secureFileName;
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>Key Security Measures</h3>
+                    <ul>
+                        <li><strong>Randomized filenames:</strong> Generate UUIDs to prevent path traversal</li>
+                        <li><strong>Proper file permissions:</strong> Set restrictive permissions on stored files</li>
+                        <li><strong>Separate domains:</strong> Use different domains for user content vs. application</li>
+                        <li><strong>CDN protection:</strong> Leverage CDN security features</li>
+                        <li><strong>Content-Disposition headers:</strong> Force downloads for risky file types</li>
+                    </ul>
+                </div>
+
+                <!-- Performance Optimization -->
+                <div class="content-section scroll-animate">
+                    <h2>3. Performance Architecture</h2>
+                    
+                    <h3>Chunked Upload Implementation</h3>
+                    <div class="code-block">
+                        <pre><code>// JavaScript: Chunked upload client
+class ChunkedUploader {
+    constructor(file, chunkSize = 1024 * 1024) { // 1MB chunks
+        this.file = file;
+        this.chunkSize = chunkSize;
+        this.totalChunks = Math.ceil(file.size / chunkSize);
+        this.currentChunk = 0;
+    }
+
+    async uploadChunk(chunkIndex) {
+        const start = chunkIndex * this.chunkSize;
+        const end = Math.min(start + this.chunkSize, this.file.size);
+        const chunk = this.file.slice(start, end);
+        
+        const formData = new FormData();
+        formData.append('chunk', chunk);
+        formData.append('chunkIndex', chunkIndex);
+        formData.append('totalChunks', this.totalChunks);
+        formData.append('fileName', this.file.name);
+        formData.append('fileId', this.fileId);
+        
+        const response = await fetch('/api/upload/chunk', {
+            method: 'POST',
+            body: formData
+        });
+        
+        return response.json();
+    }
+
+    async upload(onProgress) {
+        this.fileId = this.generateFileId();
+        
+        for (let i = 0; i < this.totalChunks; i++) {
+            await this.uploadChunk(i);
+            onProgress((i + 1) / this.totalChunks * 100);
+        }
+        
+        // Finalize upload
+        await fetch('/api/upload/finalize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileId: this.fileId })
+        });
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>Server-Side Chunk Handling</h3>
+                    <div class="code-block">
+                        <pre><code>[HttpPost("chunk")]
+public async Task&lt;IActionResult&gt; UploadChunk(IFormFile chunk, int chunkIndex, 
+    int totalChunks, string fileName, string fileId)
+{
+    var tempDir = Path.Combine(Path.GetTempPath(), "uploads", fileId);
+    Directory.CreateDirectory(tempDir);
+    
+    var chunkPath = Path.Combine(tempDir, $"chunk_{chunkIndex}");
+    
+    using (var stream = new FileStream(chunkPath, FileMode.Create))
+    {
+        await chunk.CopyToAsync(stream);
+    }
+    
+    // Check if all chunks received
+    var receivedChunks = Directory.GetFiles(tempDir, "chunk_*").Length;
+    
+    if (receivedChunks == totalChunks)
+    {
+        await AssembleFile(tempDir, fileName, fileId);
+    }
+    
+    return Ok(new { chunkIndex, received = true });
+}
+
+private async Task AssembleFile(string tempDir, string fileName, string fileId)
+{
+    var finalPath = Path.Combine(_uploadsPath, $"{fileId}_{fileName}");
+    
+    using (var finalStream = new FileStream(finalPath, FileMode.Create))
+    {
+        for (int i = 0; i < totalChunks; i++)
+        {
+            var chunkPath = Path.Combine(tempDir, $"chunk_{i}");
+            using (var chunkStream = new FileStream(chunkPath, FileMode.Open))
+            {
+                await chunkStream.CopyToAsync(finalStream);
+            }
+        }
+    }
+    
+    // Clean up temp files
+    Directory.Delete(tempDir, true);
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Progress Tracking -->
+                <div class="content-section scroll-animate">
+                    <h2>4. Progress Tracking & User Experience</h2>
+                    
+                    <h3>Real-time Progress Updates</h3>
+                    <div class="code-block">
+                        <pre><code>// SignalR Hub for real-time progress
+public class UploadProgressHub : Hub
+{
+    public async Task JoinUploadGroup(string uploadId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"upload_{uploadId}");
+    }
+}
+
+// Progress reporting service
+public class UploadProgressService
+{
+    private readonly IHubContext&lt;UploadProgressHub&gt; _hubContext;
+    
+    public async Task ReportProgress(string uploadId, int percentage, 
+        string status, long bytesUploaded, long totalBytes)
+    {
+        await _hubContext.Clients.Group($"upload_{uploadId}")
+            .SendAsync("UploadProgress", new
+            {
+                UploadId = uploadId,
+                Percentage = percentage,
+                Status = status,
+                BytesUploaded = bytesUploaded,
+                TotalBytes = totalBytes,
+                Speed = CalculateSpeed(bytesUploaded),
+                TimeRemaining = CalculateTimeRemaining(bytesUploaded, totalBytes)
+            });
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>Client-Side Progress UI</h3>
+                    <div class="code-block">
+                        <pre><code>// React component for upload progress
+const UploadProgress = ({ uploadId }) => {
+    const [progress, setProgress] = useState(0);
+    const [status, setStatus] = useState('Preparing...');
+    const [speed, setSpeed] = useState(0);
+    const [timeRemaining, setTimeRemaining] = useState(0);
+
+    useEffect(() => {
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl('/uploadProgressHub')
+            .build();
+
+        connection.start().then(() => {
+            connection.invoke('JoinUploadGroup', uploadId);
+            
+            connection.on('UploadProgress', (data) => {
+                setProgress(data.percentage);
+                setStatus(data.status);
+                setSpeed(data.speed);
+                setTimeRemaining(data.timeRemaining);
+            });
+        });
+
+        return () => connection.stop();
+    }, [uploadId]);
+
+    return (
+        &lt;div className="upload-progress"&gt;
+            &lt;div className="progress-bar"&gt;
+                &lt;div 
+                    className="progress-fill" 
+                    style={{ width: `${progress}%` }}
+                /&gt;
+            &lt;/div&gt;
+            &lt;div className="progress-info"&gt;
+                &lt;span&gt;{status} - {progress}%&lt;/span&gt;
+                &lt;span&gt;{formatSpeed(speed)} - {formatTime(timeRemaining)} remaining&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    );
+};</code></pre>
+                    </div>
+                </div>
+
+                <!-- Error Handling -->
+                <div class="content-section scroll-animate">
+                    <h2>5. Error Handling & Recovery</h2>
+                    
+                    <h3>Robust Error Handling Strategy</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Network Failures</h4>
+                            <ul>
+                                <li>Automatic retry with exponential backoff</li>
+                                <li>Resume interrupted uploads</li>
+                                <li>Connection timeout handling</li>
+                                <li>Offline detection and queuing</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Server Errors</h4>
+                            <ul>
+                                <li>Graceful degradation</li>
+                                <li>Alternative upload endpoints</li>
+                                <li>Storage fallback mechanisms</li>
+                                <li>Comprehensive error logging</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3>Upload Recovery Implementation</h3>
+                    <div class="code-block">
+                        <pre><code>class ResumableUploader {
+    constructor(file, options = {}) {
+        this.file = file;
+        this.chunkSize = options.chunkSize || 1024 * 1024;
+        this.maxRetries = options.maxRetries || 3;
+        this.retryDelay = options.retryDelay || 1000;
+    }
+
+    async uploadWithRetry(chunkIndex, retryCount = 0) {
+        try {
+            await this.uploadChunk(chunkIndex);
+            return true;
+        } catch (error) {
+            if (retryCount < this.maxRetries) {
+                const delay = this.retryDelay * Math.pow(2, retryCount);
+                await this.sleep(delay);
+                return this.uploadWithRetry(chunkIndex, retryCount + 1);
+            }
+            throw error;
+        }
+    }
+
+    async resumeUpload(uploadId) {
+        // Get upload status from server
+        const status = await fetch(`/api/upload/status/${uploadId}`);
+        const { completedChunks } = await status.json();
+        
+        // Resume from where we left off
+        for (let i = 0; i < this.totalChunks; i++) {
+            if (!completedChunks.includes(i)) {
+                await this.uploadWithRetry(i);
+            }
+        }
+    }
+
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Cloud Storage Integration -->
+                <div class="content-section scroll-animate">
+                    <h2>6. Cloud Storage Integration</h2>
+                    
+                    <h3>Direct-to-Cloud Upload</h3>
+                    <div class="code-block">
+                        <pre><code>// AWS S3 Direct Upload with Presigned URLs
+public class S3UploadService
+{
+    private readonly IAmazonS3 _s3Client;
+    
+    public async Task&lt;PresignedUploadResponse&gt; GeneratePresignedUpload(
+        string fileName, string contentType, long fileSize)
+    {
+        var key = $"uploads/{Guid.NewGuid()}/{fileName}";
+        
+        var request = new GetPreSignedUrlRequest
+        {
+            BucketName = _bucketName,
+            Key = key,
+            Verb = HttpVerb.PUT,
+            Expires = DateTime.UtcNow.AddHours(1),
+            ContentType = contentType
+        };
+        
+        // Add metadata
+        request.Metadata.Add("original-filename", fileName);
+        request.Metadata.Add("upload-timestamp", DateTime.UtcNow.ToString());
+        request.Metadata.Add("file-size", fileSize.ToString());
+        
+        var uploadUrl = await _s3Client.GetPreSignedURLAsync(request);
+        
+        return new PresignedUploadResponse
+        {
+            UploadUrl = uploadUrl,
+            Key = key,
+            ExpiresAt = request.Expires
+        };
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>Multipart Upload for Large Files</h3>
+                    <div class="code-block">
+                        <pre><code>public async Task&lt;string&gt; InitiateMultipartUpload(string fileName, string contentType)
+{
+    var request = new InitiateMultipartUploadRequest
+    {
+        BucketName = _bucketName,
+        Key = $"uploads/{Guid.NewGuid()}/{fileName}",
+        ContentType = contentType,
+        ServerSideEncryptionMethod = ServerSideEncryptionMethod.AES256
+    };
+    
+    var response = await _s3Client.InitiateMultipartUploadAsync(request);
+    return response.UploadId;
+}
+
+public async Task&lt;string&gt; GetUploadPartUrl(string key, string uploadId, int partNumber)
+{
+    var request = new GetPreSignedUrlRequest
+    {
+        BucketName = _bucketName,
+        Key = key,
+        Verb = HttpVerb.PUT,
+        Expires = DateTime.UtcNow.AddHours(1)
+    };
+    
+    request.Parameters.Add("partNumber", partNumber.ToString());
+    request.Parameters.Add("uploadId", uploadId);
+    
+    return await _s3Client.GetPreSignedURLAsync(request);
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Security Best Practices -->
+                <div class="content-section scroll-animate">
+                    <h2>7. Security Best Practices Checklist</h2>
+                    
+                    <div class="success-box">
+                        <h4>✅ Essential Security Measures</h4>
+                        <ul>
+                            <li>Validate file types using magic numbers, not just extensions</li>
+                            <li>Enforce strict file size limits</li>
+                            <li>Store files outside the web root directory</li>
+                            <li>Use randomized filenames to prevent enumeration</li>
+                            <li>Implement virus/malware scanning</li>
+                            <li>Set proper file permissions</li>
+                            <li>Use Content-Security-Policy headers</li>
+                            <li>Implement rate limiting for uploads</li>
+                        </ul>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>⚠️ Common Security Mistakes</h4>
+                        <ul>
+                            <li>Trusting client-side validation only</li>
+                            <li>Storing files in publicly accessible directories</li>
+                            <li>Not validating file contents (magic numbers)</li>
+                            <li>Using original filenames without sanitization</li>
+                            <li>Missing file size limits</li>
+                            <li>Not implementing proper access controls</li>
+                            <li>Inadequate error handling that leaks information</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Monitoring and Analytics -->
+                <div class="content-section scroll-animate">
+                    <h2>8. Monitoring & Analytics</h2>
+                    
+                    <h3>Key Metrics to Track</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Performance Metrics</h4>
+                            <ul>
+                                <li>Upload success/failure rates</li>
+                                <li>Average upload speeds</li>
+                                <li>Time to complete uploads</li>
+                                <li>Bandwidth utilization</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Security Metrics</h4>
+                            <ul>
+                                <li>Rejected file attempts</li>
+                                <li>Malware detection events</li>
+                                <li>Suspicious activity patterns</li>
+                                <li>Authentication failures</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Business Metrics</h4>
+                            <ul>
+                                <li>Storage utilization</li>
+                                <li>User engagement</li>
+                                <li>Feature adoption rates</li>
+                                <li>Cost per upload</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4>System Health</h4>
+                            <ul>
+                                <li>Server resource usage</li>
+                                <li>Error rates and types</li>
+                                <li>Response times</li>
+                                <li>Queue depths</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conclusion -->
+                <div class="content-section scroll-animate">
+                    <h2>Conclusion</h2>
+                    <p>Building secure, performant, and reliable file upload systems requires careful attention to multiple aspects: security validation, performance optimization, error handling, and user experience. By implementing the practices outlined in this guide, you can create robust file upload functionality that protects your users and your system.</p>
+                    
+                    <div class="success-box">
+                        <h4>🎯 Key Takeaways</h4>
+                        <ul>
+                            <li>Security must be implemented at multiple layers</li>
+                            <li>Performance optimization is crucial for user experience</li>
+                            <li>Error handling and recovery mechanisms are essential</li>
+                            <li>Monitoring and analytics help maintain system health</li>
+                            <li>Regular security audits and updates are necessary</li>
+                        </ul>
+                    </div>
+
+                    <p>Remember that file upload security is an ongoing process. Stay updated with the latest security threats and best practices, and regularly audit your implementation to ensure it remains secure and performant.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Loading Screen
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+            }, 1000);
+        });
+
+        // Scroll Animations
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.scroll-animate');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        // Header Background on Scroll
+        function updateHeader() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(31, 31, 31, 0.98)';
+            } else {
+                header.style.background = 'rgba(31, 31, 31, 0.95)';
+            }
+        }
+
+        // Event Listeners
+        window.addEventListener('scroll', () => {
+            updateHeader();
+            animateOnScroll();
+        });
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', () => {
+            animateOnScroll();
+        });
+    </script>
+</body>
+</html> 

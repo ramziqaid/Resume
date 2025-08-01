@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RabbitMQ Guide - Abanoub Magdy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Alex+Brush&family=Questrial&display=swap" rel="stylesheet">
+    <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet">
+    <style>
+        /* Reset and Base Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Poppins', sans-serif; background-color: #1F1F1F; color: #FFFFFF; line-height: 1.6; overflow-x: hidden; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        /* Header */
+        .header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(31, 31, 31, 0.95); backdrop-filter: blur(20px); transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); padding: 15px 0; border-bottom: 1px solid rgba(21, 185, 185, 0.2); }
+        .nav { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
+        .logo { font-family: 'Alex Brush', cursive; font-size: 26px; color: #FFFFFF; text-decoration: none; background: linear-gradient(135deg, #ebffff, #6c5dcc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a { color: #989898; text-decoration: none; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); position: relative; padding: 8px 16px; border-radius: 20px; }
+        .nav-links a::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: linear-gradient(90deg, #15B9B9, #3C1DFF); transition: width 0.3s ease; }
+        .nav-links a:hover, .nav-links a.active { color: #15B9B9; }
+        .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+        
+        /* Blog Hero */
+        .blog-hero { padding: 120px 0 80px; background: linear-gradient(135deg, rgba(21, 185, 185, 0.1) 0%, rgba(60, 29, 255, 0.1) 100%); position: relative; overflow: hidden; }
+        .blog-hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 25% 25%, rgba(21, 185, 185, 0.15) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(60, 29, 255, 0.15) 0%, transparent 50%); animation: heroFloat 25s ease-in-out infinite; }
+        @keyframes heroFloat { 0%, 100% { transform: translateX(0px) translateY(0px) rotate(0deg); } 25% { transform: translateX(-15px) translateY(-20px) rotate(45deg); } 50% { transform: translateX(15px) translateY(-10px) rotate(90deg); } 75% { transform: translateX(-8px) translateY(-15px) rotate(135deg); } }
+        .blog-hero-content { position: relative; z-index: 2; text-align: center; }
+        .blog-title { font-size: 48px; font-weight: 600; margin-bottom: 20px; background: linear-gradient(135deg, #FFFFFF, #E3E1E1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .blog-subtitle { font-size: 20px; color: #15B9B9; margin-bottom: 30px; font-weight: 400; }
+        .blog-meta { display: flex; justify-content: center; gap: 30px; margin-bottom: 40px; flex-wrap: wrap; }
+        .blog-meta span { display: flex; align-items: center; gap: 8px; color: #E3E1E1; font-size: 14px; }
+        .blog-meta i { color: #15B9B9; font-size: 16px; }
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, rgba(21, 185, 185, 0.2), rgba(60, 29, 255, 0.2)); color: #15B9B9; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; border: 1px solid rgba(21, 185, 185, 0.3); transition: all 0.3s ease; }
+        .back-btn:hover { background: linear-gradient(135deg, rgba(21, 185, 185, 0.3), rgba(60, 29, 255, 0.3)); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(21, 185, 185, 0.2); color: #15B9B9; text-decoration: none; }
+        
+        /* Content */
+        .blog-content { padding: 80px 0; position: relative; }
+        .blog-container { max-width: 900px; margin: 0 auto; position: relative; z-index: 2; }
+        .content-section { background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%); border-radius: 20px; padding: 40px; margin-bottom: 40px; border: 1px solid rgba(21, 185, 185, 0.2); backdrop-filter: blur(10px); transition: all 0.4s ease; }
+        .content-section:hover { border-color: rgba(21, 185, 185, 0.4); box-shadow: 0 10px 30px rgba(21, 185, 185, 0.1); }
+        .content-section h2 { font-size: 32px; font-weight: 600; margin-bottom: 20px; color: #15B9B9; border-bottom: 2px solid rgba(21, 185, 185, 0.3); padding-bottom: 10px; }
+        .content-section h3 { font-size: 24px; font-weight: 600; margin: 30px 0 15px; color: #FFFFFF; }
+        .content-section h4 { font-size: 20px; font-weight: 600; margin: 25px 0 12px; color: #15B9B9; }
+        .content-section p { font-size: 16px; line-height: 1.8; margin-bottom: 20px; color: #E3E1E1; }
+        .content-section ul, .content-section ol { margin-bottom: 20px; padding-left: 30px; }
+        .content-section li { font-size: 16px; line-height: 1.8; margin-bottom: 8px; color: #E3E1E1; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin: 30px 0; }
+        .feature-card { background: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 15px; border: 1px solid rgba(21, 185, 185, 0.2); transition: all 0.3s ease; }
+        .feature-card:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(21, 185, 185, 0.4); transform: translateY(-5px); }
+        .feature-card h4 { color: #15B9B9; margin-bottom: 15px; font-size: 18px; }
+        .code-block { background: #2D2D2D; border: 1px solid rgba(21, 185, 185, 0.3); border-radius: 10px; padding: 20px; margin: 20px 0; overflow-x: auto; position: relative; }
+        .code-block pre { margin: 0; color: #E3E1E1; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.5; }
+        .code-block code { color: #15B9B9; }
+        
+        /* Loading and Scroll Animations */
+        .loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1F1F1F; display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease; }
+        .loading.hidden { opacity: 0; pointer-events: none; }
+        .loading-spinner { width: 50px; height: 50px; border: 3px solid rgba(255, 255, 255, 0.1); border-top: 3px solid #15B9B9; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .scroll-animate { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
+        .scroll-animate.visible { opacity: 1; transform: translateY(0); }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 0 15px; }
+            .blog-title { font-size: 32px; }
+            .blog-subtitle { font-size: 16px; }
+            .blog-meta { flex-direction: column; gap: 15px; }
+            .content-section { padding: 25px; }
+            .content-section h2 { font-size: 24px; }
+            .feature-grid { grid-template-columns: 1fr; gap: 20px; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading"><div class="loading-spinner"></div></div>
+
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="../../blogs.html" class="logo">Abanoub Magdy</a>
+                <ul class="nav-links" id="navLinks">                   
+                    <li><a href="../../blogs.html#blog">Blog</a></li>
+                    <li><a href="../../resume.html">Resume</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="blog-hero">
+        <div class="container">
+            <div class="blog-hero-content">
+                <h1 class="blog-title">RabbitMQ Guide</h1>
+                <p class="blog-subtitle">Message Broker Implementation for Scalable Microservices Architecture</p>
+                <div class="blog-meta">
+                    <span><i class="ion-calendar"></i> February 2025</span>
+                    <span><i class="ion-clock"></i> 20 min read</span>
+                    <span><i class="ion-person"></i> Abanoub Magdy</span>
+                </div>
+                <a href="../../blogs.html" class="back-btn">
+                    <i class="ion-ios-arrow-left"></i> Back to Blog
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="blog-content">
+        <div class="container">
+            <div class="blog-container">
+                <div class="content-section scroll-animate">
+                    <h2>Introduction to RabbitMQ</h2>
+                    <p>RabbitMQ is a robust, open-source message broker that implements the Advanced Message Queuing Protocol (AMQP). It acts as an intermediary for messaging, enabling applications to communicate asynchronously by sending and receiving messages through queues.</p>
+                    
+                    <h3>Why Use Message Brokers?</h3>
+                    <ul>
+                        <li><strong>Decoupling:</strong> Services don't need to know about each other directly</li>
+                        <li><strong>Reliability:</strong> Messages are persisted and guaranteed delivery</li>
+                        <li><strong>Scalability:</strong> Handle high-throughput messaging scenarios</li>
+                        <li><strong>Flexibility:</strong> Support various messaging patterns</li>
+                        <li><strong>Fault Tolerance:</strong> System continues working even if some services are down</li>
+                    </ul>
+                </div>
+
+                <div class="content-section scroll-animate">
+                    <h2>Core Concepts</h2>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Producer</h4>
+                            <p>Application that sends messages to RabbitMQ. Producers create and publish messages to exchanges.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Consumer</h4>
+                            <p>Application that receives messages from RabbitMQ. Consumers subscribe to queues to receive messages.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Queue</h4>
+                            <p>Buffer that stores messages. Messages are stored in queues until they are consumed by applications.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Exchange</h4>
+                            <p>Routes messages to queues based on routing rules. Acts as a message routing agent.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Binding</h4>
+                            <p>Link between an exchange and a queue that defines routing rules for messages.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Routing Key</h4>
+                            <p>Message attribute used by exchanges to determine how to route messages to queues.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section scroll-animate">
+                    <h2>Installation and Setup</h2>
+                    
+                    <h3>Docker Installation</h3>
+                    <div class="code-block">
+                        <pre><code># Pull and run RabbitMQ with management plugin
+docker run -d --hostname rabbitmq --name rabbitmq \
+  -p 5672:5672 -p 15672:15672 \
+  -e RABBITMQ_DEFAULT_USER=admin \
+  -e RABBITMQ_DEFAULT_PASS=password \
+  rabbitmq:3-management
+
+# Access management UI at http://localhost:15672
+# Username: admin, Password: password</code></pre>
+                    </div>
+
+                    <h3>.NET Client Setup</h3>
+                    <div class="code-block">
+                        <pre><code># Install RabbitMQ .NET client
+dotnet add package RabbitMQ.Client
+
+# For ASP.NET Core integration
+dotnet add package MassTransit
+dotnet add package MassTransit.RabbitMQ</code></pre>
+                    </div>
+                </div>
+
+                <div class="content-section scroll-animate">
+                    <h2>Basic Producer and Consumer</h2>
+                    
+                    <h3>Simple Producer</h3>
+                    <div class="code-block">
+                        <pre><code>using RabbitMQ.Client;
+using System.Text;
+
+public class MessageProducer
+{
+    private readonly IConnection _connection;
+    private readonly IModel _channel;
+
+    public MessageProducer()
+    {
+        var factory = new ConnectionFactory() 
+        { 
+            HostName = "localhost",
+            UserName = "admin",
+            Password = "password"
+        };
+        
+        _connection = factory.CreateConnection();
+        _channel = _connection.CreateModel();
+        
+        // Declare queue
+        _channel.QueueDeclare(
+            queue: "hello",
+            durable: false,
+            exclusive: false,
+            autoDelete: false,
+            arguments: null);
+    }
+
+    public void SendMessage(string message)
+    {
+        var body = Encoding.UTF8.GetBytes(message);
+        
+        _channel.BasicPublish(
+            exchange: "",
+            routingKey: "hello",
+            basicProperties: null,
+            body: body);
+            
+        Console.WriteLine($"Sent: {message}");
+    }
+
+    public void Dispose()
+    {
+        _channel?.Close();
+        _connection?.Close();
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>Simple Consumer</h3>
+                    <div class="code-block">
+                        <pre><code>using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System.Text;
+
+public class MessageConsumer
+{
+    private readonly IConnection _connection;
+    private readonly IModel _channel;
+
+    public MessageConsumer()
+    {
+        var factory = new ConnectionFactory() 
+        { 
+            HostName = "localhost",
+            UserName = "admin",
+            Password = "password"
+        };
+        
+        _connection = factory.CreateConnection();
+        _channel = _connection.CreateModel();
+        
+        // Declare the same queue
+        _channel.QueueDeclare(
+            queue: "hello",
+            durable: false,
+            exclusive: false,
+            autoDelete: false,
+            arguments: null);
+    }
+
+    public void StartConsuming()
+    {
+        var consumer = new EventingBasicConsumer(_channel);
+        
+        consumer.Received += (model, ea) =>
+        {
+            var body = ea.Body.ToArray();
+            var message = Encoding.UTF8.GetString(body);
+            
+            Console.WriteLine($"Received: {message}");
+            
+            // Acknowledge message processing
+            _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+        };
+        
+        _channel.BasicConsume(
+            queue: "hello",
+            autoAck: false, // Manual acknowledgment
+            consumer: consumer);
+            
+        Console.WriteLine("Waiting for messages. Press [enter] to exit.");
+        Console.ReadLine();
+    }
+
+    public void Dispose()
+    {
+        _channel?.Close();
+        _connection?.Close();
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="content-section scroll-animate">
+                    <h2>Exchange Types</h2>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Direct Exchange</h4>
+                            <p>Routes messages to queues based on exact routing key match. Perfect for unicast routing.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Topic Exchange</h4>
+                            <p>Routes messages based on wildcard matching of routing keys. Supports pattern-based routing.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Fanout Exchange</h4>
+                            <p>Routes messages to all bound queues, ignoring routing keys. Perfect for broadcast scenarios.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Headers Exchange</h4>
+                            <p>Routes messages based on message headers instead of routing keys. More flexible routing.</p>
+                        </div>
+                    </div>
+
+                    <h3>Topic Exchange Example</h3>
+                    <div class="code-block">
+                        <pre><code>public class TopicExchangeExample
+{
+    private readonly IModel _channel;
+
+    public TopicExchangeExample(IModel channel)
+    {
+        _channel = channel;
+        
+        // Declare topic exchange
+        _channel.ExchangeDeclare(
+            exchange: "logs_topic",
+            type: ExchangeType.Topic,
+            durable: true);
+    }
+
+    public void PublishLogMessage(string severity, string facility, string message)
+    {
+        var routingKey = $"{facility}.{severity}";
+        var body = Encoding.UTF8.GetBytes(message);
+        
+        _channel.BasicPublish(
+            exchange: "logs_topic",
+            routingKey: routingKey,
+            basicProperties: null,
+            body: body);
+            
+        Console.WriteLine($"Sent [{routingKey}]: {message}");
+    }
+
+    public void SubscribeToLogs(string bindingPattern, string queueName)
+    {
+        _channel.QueueDeclare(
+            queue: queueName,
+            durable: true,
+            exclusive: false,
+            autoDelete: false);
+            
+        _channel.QueueBind(
+            queue: queueName,
+            exchange: "logs_topic",
+            routingKey: bindingPattern);
+            
+        var consumer = new EventingBasicConsumer(_channel);
+        consumer.Received += (model, ea) =>
+        {
+            var body = ea.Body.ToArray();
+            var message = Encoding.UTF8.GetString(body);
+            var routingKey = ea.RoutingKey;
+            
+            Console.WriteLine($"[{queueName}] Received [{routingKey}]: {message}");
+            _channel.BasicAck(ea.DeliveryTag, false);
+        };
+        
+        _channel.BasicConsume(queue: queueName, autoAck: false, consumer: consumer);
+    }
+}
+
+// Usage examples:
+// publisher.PublishLogMessage("error", "auth", "Authentication failed");
+// subscriber.SubscribeToLogs("auth.*", "auth_logs");      // All auth logs
+// subscriber.SubscribeToLogs("*.error", "error_logs");    // All error logs
+// subscriber.SubscribeToLogs("#", "all_logs");            // All logs</code></pre>
+                    </div>
+                </div>
+
+                <div class="content-section scroll-animate">
+                    <h2>Advanced Patterns</h2>
+                    
+                    <h3>Work Queue Pattern</h3>
+                    <div class="code-block">
+                        <pre><code>public class WorkQueueProducer
+{
+    private readonly IModel _channel;
+
+    public WorkQueueProducer(IModel channel)
+    {
+        _channel = channel;
+        
+        // Declare durable queue
+        _channel.QueueDeclare(
+            queue: "task_queue",
+            durable: true,
+            exclusive: false,
+            autoDelete: false);
+    }
+
+    public void SendTask(string task)
+    {
+        var message = JsonSerializer.Serialize(new { Task = task, CreatedAt = DateTime.UtcNow });
+        var body = Encoding.UTF8.GetBytes(message);
+        
+        var properties = _channel.CreateBasicProperties();
+        properties.Persistent = true; // Make message persistent
+        
+        _channel.BasicPublish(
+            exchange: "",
+            routingKey: "task_queue",
+            basicProperties: properties,
+            body: body);
+    }
+}
+
+public class WorkQueueConsumer
+{
+    private readonly IModel _channel;
+
+    public WorkQueueConsumer(IModel channel)
+    {
+        _channel = channel;
+        
+        _channel.QueueDeclare(
+            queue: "task_queue",
+            durable: true,
+            exclusive: false,
+            autoDelete: false);
+            
+        // Fair dispatch - don't give more than one message at a time
+        _channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+    }
+
+    public void StartProcessing()
+    {
+        var consumer = new EventingBasicConsumer(_channel);
+        
+        consumer.Received += async (model, ea) =>
+        {
+            var body = ea.Body.ToArray();
+            var message = Encoding.UTF8.GetString(body);
+            
+            Console.WriteLine($"Processing: {message}");
+            
+            try
+            {
+                // Simulate work
+                await ProcessTask(message);
+                
+                // Acknowledge successful processing
+                _channel.BasicAck(ea.DeliveryTag, false);
+                Console.WriteLine("Task completed successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Task failed: {ex.Message}");
+                
+                // Reject and requeue the message
+                _channel.BasicNack(ea.DeliveryTag, false, true);
+            }
+        };
+        
+        _channel.BasicConsume(
+            queue: "task_queue",
+            autoAck: false,
+            consumer: consumer);
+    }
+
+    private async Task ProcessTask(string taskData)
+    {
+        // Simulate processing time
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        
+        // Your actual task processing logic here
+        Console.WriteLine($"Processed task: {taskData}");
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>RPC Pattern</h3>
+                    <div class="code-block">
+                        <pre><code>public class RpcClient
+{
+    private readonly IModel _channel;
+    private readonly string _replyQueueName;
+    private readonly ConcurrentDictionary&lt;string, TaskCompletionSource&lt;string&gt;&gt; _callbackMapper = new();
+
+    public RpcClient(IModel channel)
+    {
+        _channel = channel;
+        
+        // Create exclusive queue for replies
+        _replyQueueName = _channel.QueueDeclare().QueueName;
+        
+        var consumer = new EventingBasicConsumer(_channel);
+        consumer.Received += (model, ea) =>
+        {
+            if (_callbackMapper.TryRemove(ea.BasicProperties.CorrelationId, out var tcs))
+            {
+                var body = ea.Body.ToArray();
+                var response = Encoding.UTF8.GetString(body);
+                tcs.TrySetResult(response);
+            }
+        };
+        
+        _channel.BasicConsume(
+            consumer: consumer,
+            queue: _replyQueueName,
+            autoAck: true);
+    }
+
+    public async Task&lt;string&gt; CallAsync(string message, TimeSpan timeout)
+    {
+        var props = _channel.CreateBasicProperties();
+        var correlationId = Guid.NewGuid().ToString();
+        props.CorrelationId = correlationId;
+        props.ReplyTo = _replyQueueName;
+        
+        var messageBytes = Encoding.UTF8.GetBytes(message);
+        var tcs = new TaskCompletionSource&lt;string&gt;();
+        _callbackMapper.TryAdd(correlationId, tcs);
+        
+        _channel.BasicPublish(
+            exchange: "",
+            routingKey: "rpc_queue",
+            basicProperties: props,
+            body: messageBytes);
+        
+        using var cts = new CancellationTokenSource(timeout);
+        cts.Token.Register(() => tcs.TrySetCanceled(), useSynchronizationContext: false);
+        
+        try
+        {
+            return await tcs.Task;
+        }
+        finally
+        {
+            _callbackMapper.TryRemove(correlationId, out _);
+        }
+    }
+}
+
+public class RpcServer
+{
+    private readonly IModel _channel;
+
+    public RpcServer(IModel channel)
+    {
+        _channel = channel;
+        
+        _channel.QueueDeclare(
+            queue: "rpc_queue",
+            durable: false,
+            exclusive: false,
+            autoDelete: false);
+            
+        _channel.BasicQos(0, 1, false);
+        
+        var consumer = new EventingBasicConsumer(_channel);
+        consumer.Received += async (model, ea) =>
+        {
+            string response = "";
+            
+            var body = ea.Body.ToArray();
+            var props = ea.BasicProperties;
+            var replyProps = _channel.CreateBasicProperties();
+            replyProps.CorrelationId = props.CorrelationId;
+            
+            try
+            {
+                var message = Encoding.UTF8.GetString(body);
+                response = await ProcessRequest(message);
+            }
+            catch (Exception ex)
+            {
+                response = $"Error: {ex.Message}";
+            }
+            finally
+            {
+                var responseBytes = Encoding.UTF8.GetBytes(response);
+                _channel.BasicPublish(
+                    exchange: "",
+                    routingKey: props.ReplyTo,
+                    basicProperties: replyProps,
+                    body: responseBytes);
+                    
+                _channel.BasicAck(ea.DeliveryTag, false);
+            }
+        };
+        
+        _channel.BasicConsume(
+            queue: "rpc_queue",
+            autoAck: false,
+            consumer: consumer);
+    }
+
+    private async Task&lt;string&gt; ProcessRequest(string request)
+    {
+        // Simulate processing
+        await Task.Delay(1000);
+        return $"Processed: {request} at {DateTime.UtcNow}";
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="content-section scroll-animate">
+                    <h2>Error Handling and Reliability</h2>
+                    
+                    <h3>Dead Letter Exchange</h3>
+                    <div class="code-block">
+                        <pre><code>public class ReliableMessaging
+{
+    public void SetupDeadLetterExchange(IModel channel)
+    {
+        // Declare dead letter exchange
+        channel.ExchangeDeclare("dlx", ExchangeType.Direct, durable: true);
+        channel.QueueDeclare("dead_letter_queue", durable: true, exclusive: false, autoDelete: false);
+        channel.QueueBind("dead_letter_queue", "dlx", "failed");
+        
+        // Declare main queue with dead letter exchange
+        var arguments = new Dictionary&lt;string, object&gt;
+        {
+            { "x-dead-letter-exchange", "dlx" },
+            { "x-dead-letter-routing-key", "failed" },
+            { "x-message-ttl", 60000 }, // 60 seconds TTL
+            { "x-max-retries", 3 }
+        };
+        
+        channel.QueueDeclare(
+            "main_queue", 
+            durable: true, 
+            exclusive: false, 
+            autoDelete: false, 
+            arguments: arguments);
+    }
+
+    public void ProcessWithRetry(IModel channel)
+    {
+        var consumer = new EventingBasicConsumer(channel);
+        
+        consumer.Received += (model, ea) =>
+        {
+            try
+            {
+                var body = ea.Body.ToArray();
+                var message = Encoding.UTF8.GetString(body);
+                
+                // Process message
+                ProcessMessage(message);
+                
+                // Acknowledge successful processing
+                channel.BasicAck(ea.DeliveryTag, false);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Processing failed: {ex.Message}");
+                
+                // Check retry count
+                var headers = ea.BasicProperties.Headers ?? new Dictionary&lt;string, object&gt;();
+                var retryCount = headers.ContainsKey("x-retry-count") 
+                    ? (int)headers["x-retry-count"] 
+                    : 0;
+                
+                if (retryCount < 3)
+                {
+                    // Increment retry count and republish
+                    headers["x-retry-count"] = retryCount + 1;
+                    
+                    var props = channel.CreateBasicProperties();
+                    props.Headers = headers;
+                    props.Persistent = true;
+                    
+                    channel.BasicPublish(
+                        exchange: "",
+                        routingKey: "main_queue",
+                        basicProperties: props,
+                        body: ea.Body);
+                        
+                    channel.BasicAck(ea.DeliveryTag, false);
+                }
+                else
+                {
+                    // Max retries reached, let it go to dead letter queue
+                    channel.BasicNack(ea.DeliveryTag, false, false);
+                }
+            }
+        };
+        
+        channel.BasicConsume("main_queue", autoAck: false, consumer: consumer);
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="content-section scroll-animate">
+                    <h2>Best Practices</h2>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Connection Management</h4>
+                            <ul>
+                                <li>Use connection pooling</li>
+                                <li>Handle connection failures gracefully</li>
+                                <li>Implement automatic reconnection</li>
+                                <li>Monitor connection health</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Message Design</h4>
+                            <ul>
+                                <li>Keep messages small and focused</li>
+                                <li>Use JSON for serialization</li>
+                                <li>Include message versioning</li>
+                                <li>Add correlation IDs for tracing</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Error Handling</h4>
+                            <ul>
+                                <li>Implement dead letter queues</li>
+                                <li>Use exponential backoff for retries</li>
+                                <li>Log all processing errors</li>
+                                <li>Monitor queue depths</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Performance</h4>
+                            <ul>
+                                <li>Use appropriate prefetch counts</li>
+                                <li>Batch message processing</li>
+                                <li>Monitor memory usage</li>
+                                <li>Use persistent messages wisely</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section scroll-animate">
+                    <h2>Conclusion</h2>
+                    <p>RabbitMQ provides a robust foundation for building scalable, reliable messaging systems. By understanding its core concepts and implementing proper patterns, you can build resilient microservices architectures that handle high-throughput scenarios while maintaining data consistency and reliability.</p>
+                    
+                    <p>Key takeaways include proper connection management, implementing appropriate error handling strategies, choosing the right exchange types for your use cases, and monitoring system performance. Start with simple patterns and gradually introduce more complex messaging scenarios as your system grows.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        window.addEventListener('load', function() {
+            setTimeout(() => document.getElementById('loading').classList.add('hidden'), 1000);
+        });
+
+        function animateOnScroll() {
+            document.querySelectorAll('.scroll-animate').forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                if (elementTop < window.innerHeight - 150) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        function updateHeader() {
+            const header = document.getElementById('header');
+            header.style.background = window.scrollY > 100 ? 'rgba(31, 31, 31, 0.98)' : 'rgba(31, 31, 31, 0.95)';
+        }
+
+        window.addEventListener('scroll', () => {
+            updateHeader();
+            animateOnScroll();
+        });
+
+        document.addEventListener('DOMContentLoaded', animateOnScroll);
+    </script>
+</body>
+</html> 
