@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Running AI Models Locally - Abanoub Magdy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Alex+Brush&family=Questrial&display=swap" rel="stylesheet">
+    <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #1F1F1F;
+            color: #FFFFFF;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(31, 31, 31, 0.95);
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(21, 185, 185, 0.2);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo {
+            font-family: 'Alex Brush', cursive;
+            font-size: 26px;
+            color: #FFFFFF;
+            text-decoration: none;
+            background: linear-gradient(135deg, #ebffff, #6c5dcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #989898;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #15B9B9, #3C1DFF);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #15B9B9;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        /* Blog Hero Section */
+        .blog-hero {
+            padding: 120px 0 80px;
+            background: linear-gradient(135deg, rgba(21, 185, 185, 0.1) 0%, rgba(60, 29, 255, 0.1) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(21, 185, 185, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(60, 29, 255, 0.15) 0%, transparent 50%);
+            animation: heroFloat 25s ease-in-out infinite;
+        }
+
+        @keyframes heroFloat {
+            0%, 100% { transform: translateX(0px) translateY(0px) rotate(0deg); }
+            25% { transform: translateX(-15px) translateY(-20px) rotate(45deg); }
+            50% { transform: translateX(15px) translateY(-10px) rotate(90deg); }
+            75% { transform: translateX(-8px) translateY(-15px) rotate(135deg); }
+        }
+
+        .blog-hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .blog-title {
+            font-size: 48px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #FFFFFF, #E3E1E1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .blog-subtitle {
+            font-size: 20px;
+            color: #15B9B9;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .blog-meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .blog-meta span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #E3E1E1;
+            font-size: 14px;
+        }
+
+        .blog-meta i {
+            color: #15B9B9;
+            font-size: 16px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(21, 185, 185, 0.2), rgba(60, 29, 255, 0.2));
+            color: #15B9B9;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(21, 185, 185, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, rgba(21, 185, 185, 0.3), rgba(60, 29, 255, 0.3));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(21, 185, 185, 0.2);
+            color: #15B9B9;
+            text-decoration: none;
+        }
+
+        /* Blog Content */
+        .blog-content {
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .blog-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .content-section {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(21, 185, 185, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+        }
+
+        .content-section:hover {
+            border-color: rgba(21, 185, 185, 0.4);
+            box-shadow: 0 10px 30px rgba(21, 185, 185, 0.1);
+        }
+
+        .content-section h2 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #15B9B9;
+            border-bottom: 2px solid rgba(21, 185, 185, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .content-section h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 30px 0 15px;
+            color: #FFFFFF;
+        }
+
+        .content-section h4 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 25px 0 12px;
+            color: #15B9B9;
+        }
+
+        .content-section p {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            color: #E3E1E1;
+        }
+
+        .content-section ul, .content-section ol {
+            margin-bottom: 20px;
+            padding-left: 30px;
+        }
+
+        .content-section li {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 8px;
+            color: #E3E1E1;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(21, 185, 185, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(21, 185, 185, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .feature-card h4 {
+            color: #15B9B9;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .code-block {
+            background: #2D2D2D;
+            border: 1px solid rgba(21, 185, 185, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: #E3E1E1;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .code-block code {
+            color: #15B9B9;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .blog-title {
+                font-size: 32px;
+            }
+
+            .blog-subtitle {
+                font-size: 16px;
+            }
+
+            .blog-meta {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            .content-section h2 {
+                font-size: 24px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1F1F1F;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #15B9B9;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Scroll Animations */
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="../../blogs.html" class="logo">Abanoub Magdy</a>
+                <ul class="nav-links" id="navLinks">                   
+                    <li><a href="../../blogs.html#blog">Blog</a></li>
+                    <li><a href="../../resume.html">Resume</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Blog Hero Section -->
+    <section class="blog-hero">
+        <div class="container">
+            <div class="blog-hero-content">
+                <h1 class="blog-title">Running AI Models Locally</h1>
+                <p class="blog-subtitle">A Comprehensive Guide to Setting Up and Running AI Models on Your Local Machine</p>
+                <div class="blog-meta">
+                    <span><i class="ion-calendar"></i> June 2025</span>
+                    <span><i class="ion-clock"></i> 25 min read</span>
+                    <span><i class="ion-person"></i> Abanoub Magdy</span>
+                </div>
+                <a href="../../blogs.html" class="back-btn">
+                    <i class="ion-ios-arrow-left"></i> Back to Blog
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Content -->
+    <section class="blog-content">
+        <div class="container">
+            <div class="blog-container">
+                <!-- Introduction -->
+                <div class="content-section scroll-animate">
+                    <h2>1. Introduction</h2>
+                    <p>Want to supercharge your business with AI while keeping data secure? Running an AI engine locally on Windows with Docker ensures privacy, control, and cost savings. This guide shows you how to set up chatbots, text summarization, and image generation using Ollama and Stable Diffusion, with Open WebUI for a user-friendly interface.</p>
+                    
+                    <h3>Why Run AI Locally?</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Key Benefits</h4>
+                            <ul>
+                                <li>Privacy: Keep sensitive data on your hardware</li>
+                                <li>Cost Savings: Skip cloud fees</li>
+                                <li>Versatility: Build chatbots, summarize SQL data, or generate images</li>
+                                <li>Offline Mode: Perfect for secure environments</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prerequisites -->
+                <div class="content-section scroll-animate">
+                    <h2>2. Prerequisites</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>System Requirements</h4>
+                            <ul>
+                                <li>Windows 10 (build 19041+) or 11</li>
+                                <li>16GB+ RAM</li>
+                                <li>10GB+ free space on C:</li>
+                                <li>NVIDIA GPU (Optional): For faster processing</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Software Requirements</h4>
+                            <ul>
+                                <li>Docker Desktop</li>
+                                <li>Internet connection (for initial setup)</li>
+                                <li>Data files (.txt, .csv, or .pdf)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Docker Setup -->
+                <div class="content-section scroll-animate">
+                    <h2>3. Setting Up Docker Desktop</h2>
+                    <p>Docker Desktop is essential for running AI models in containers. Here's how to set it up:</p>
+                    
+                    <h3>Installation Steps</h3>
+                    <ol>
+                        <li>Download Docker Desktop from the official website</li>
+                        <li>Run the installer and follow the setup wizard</li>
+                        <li>Enable WSL 2 integration when prompted</li>
+                        <li>Restart your computer after installation</li>
+                        <li>Launch Docker Desktop and complete the initial setup</li>
+                    </ol>
+
+                    <h3>Verify Installation</h3>
+                    <div class="code-block">
+                        <pre><code>docker --version
+docker-compose --version</code></pre>
+                    </div>
+                </div>
+
+                <!-- Ollama Setup -->
+                <div class="content-section scroll-animate">
+                    <h2>4. Running Ollama with Docker</h2>
+                    <p>Ollama is a powerful tool for running large language models locally. Let's set it up with Docker:</p>
+                    
+                    <h3>Pull and Run Ollama</h3>
+                    <div class="code-block">
+                        <pre><code>docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama</code></pre>
+                    </div>
+
+                    <h3>Download AI Models</h3>
+                    <div class="code-block">
+                        <pre><code># Download Llama 2 model
+docker exec -it ollama ollama run llama2
+
+# Download Code Llama for programming tasks
+docker exec -it ollama ollama run codellama
+
+# Download Mistral for general tasks
+docker exec -it ollama ollama run mistral</code></pre>
+                    </div>
+                </div>
+
+                <!-- Open WebUI Setup -->
+                <div class="content-section scroll-animate">
+                    <h2>5. Setting Up Open WebUI</h2>
+                    <p>Open WebUI provides a ChatGPT-like interface for your local AI models:</p>
+                    
+                    <div class="code-block">
+                        <pre><code>docker run -d -p 3000:8080 --add-host=host.docker.internal:host-gateway -v open-webui:/app/backend/data --name open-webui --restart always ghcr.io/open-webui/open-webui:main</code></pre>
+                    </div>
+
+                    <p>After running this command, open your browser and navigate to <strong>http://localhost:3000</strong> to access the web interface.</p>
+                </div>
+
+                <!-- Stable Diffusion -->
+                <div class="content-section scroll-animate">
+                    <h2>6. Image Generation with Stable Diffusion</h2>
+                    <p>For AI image generation, we'll use Stable Diffusion WebUI:</p>
+                    
+                    <div class="code-block">
+                        <pre><code>docker run -d -p 7860:7860 --name stable-diffusion-webui -v sd-models:/app/models -v sd-outputs:/app/outputs --gpus all stabilityai/stable-diffusion-webui</code></pre>
+                    </div>
+
+                    <h3>GPU Acceleration</h3>
+                    <p>If you have an NVIDIA GPU, make sure to install the NVIDIA Container Toolkit for better performance:</p>
+                    <div class="code-block">
+                        <pre><code># Install NVIDIA Container Toolkit
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list</code></pre>
+                    </div>
+                </div>
+
+                <!-- Use Cases -->
+                <div class="content-section scroll-animate">
+                    <h2>7. Practical Use Cases</h2>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Business Chatbot</h4>
+                            <p>Create customer service chatbots that understand your business context and provide accurate responses without sending data to external services.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Document Summarization</h4>
+                            <p>Automatically summarize large documents, reports, or research papers while keeping sensitive information secure.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Code Generation</h4>
+                            <p>Use Code Llama to generate, review, and optimize code in various programming languages.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Content Creation</h4>
+                            <p>Generate marketing content, blog posts, and creative writing with AI assistance.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Troubleshooting -->
+                <div class="content-section scroll-animate">
+                    <h2>8. Troubleshooting Common Issues</h2>
+                    
+                    <h3>Docker Issues</h3>
+                    <ul>
+                        <li><strong>Port conflicts:</strong> Make sure ports 3000, 7860, and 11434 are available</li>
+                        <li><strong>Memory issues:</strong> Increase Docker's memory allocation in settings</li>
+                        <li><strong>WSL 2 problems:</strong> Enable virtualization in BIOS and update WSL</li>
+                    </ul>
+
+                    <h3>Model Loading Issues</h3>
+                    <ul>
+                        <li><strong>Slow downloads:</strong> Models are large (2-7GB), be patient</li>
+                        <li><strong>Out of memory:</strong> Try smaller models like Llama 2 7B instead of 13B</li>
+                        <li><strong>GPU not detected:</strong> Install NVIDIA drivers and Container Toolkit</li>
+                    </ul>
+                </div>
+
+                <!-- Conclusion -->
+                <div class="content-section scroll-animate">
+                    <h2>9. Conclusion</h2>
+                    <p>Running AI models locally gives you complete control over your data while providing powerful AI capabilities. With Docker, Ollama, and Open WebUI, you can create a comprehensive AI development environment on your Windows machine.</p>
+                    
+                    <p>This setup enables you to build chatbots, summarize documents, generate code, and create images without relying on external services. The initial setup requires some technical knowledge, but the benefits of privacy, cost savings, and offline capabilities make it worthwhile for businesses and developers.</p>
+
+                    <h3>Next Steps</h3>
+                    <ul>
+                        <li>Experiment with different AI models to find what works best for your use case</li>
+                        <li>Integrate the AI models with your existing applications using APIs</li>
+                        <li>Set up automated workflows for document processing and content generation</li>
+                        <li>Monitor resource usage and optimize performance for your hardware</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Loading Screen
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+            }, 1000);
+        });
+
+        // Scroll Animations
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.scroll-animate');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        // Header Background on Scroll
+        function updateHeader() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(31, 31, 31, 0.98)';
+            } else {
+                header.style.background = 'rgba(31, 31, 31, 0.95)';
+            }
+        }
+
+        // Event Listeners
+        window.addEventListener('scroll', () => {
+            updateHeader();
+            animateOnScroll();
+        });
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', () => {
+            animateOnScroll();
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

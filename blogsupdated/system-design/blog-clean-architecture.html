@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Architecture - Abanoub Magdy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Alex+Brush&family=Questrial&display=swap" rel="stylesheet">
+    <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #1F1F1F;
+            color: #FFFFFF;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(31, 31, 31, 0.95);
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(21, 185, 185, 0.2);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo {
+            font-family: 'Alex Brush', cursive;
+            font-size: 26px;
+            color: #FFFFFF;
+            text-decoration: none;
+            background: linear-gradient(135deg, #ebffff, #6c5dcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #989898;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #15B9B9, #3C1DFF);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #15B9B9;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        /* Blog Hero Section */
+        .blog-hero {
+            padding: 120px 0 80px;
+            background: linear-gradient(135deg, rgba(21, 185, 185, 0.1) 0%, rgba(60, 29, 255, 0.1) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(21, 185, 185, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(60, 29, 255, 0.15) 0%, transparent 50%);
+            animation: heroFloat 25s ease-in-out infinite;
+        }
+
+        @keyframes heroFloat {
+            0%, 100% { transform: translateX(0px) translateY(0px) rotate(0deg); }
+            25% { transform: translateX(-15px) translateY(-20px) rotate(45deg); }
+            50% { transform: translateX(15px) translateY(-10px) rotate(90deg); }
+            75% { transform: translateX(-8px) translateY(-15px) rotate(135deg); }
+        }
+
+        .blog-hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .blog-title {
+            font-size: 48px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #FFFFFF, #E3E1E1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .blog-subtitle {
+            font-size: 20px;
+            color: #15B9B9;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .blog-meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .blog-meta span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #E3E1E1;
+            font-size: 14px;
+        }
+
+        .blog-meta i {
+            color: #15B9B9;
+            font-size: 16px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(21, 185, 185, 0.2), rgba(60, 29, 255, 0.2));
+            color: #15B9B9;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(21, 185, 185, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, rgba(21, 185, 185, 0.3), rgba(60, 29, 255, 0.3));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(21, 185, 185, 0.2);
+            color: #15B9B9;
+            text-decoration: none;
+        }
+
+        /* Blog Content */
+        .blog-content {
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .blog-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .content-section {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(21, 185, 185, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+        }
+
+        .content-section:hover {
+            border-color: rgba(21, 185, 185, 0.4);
+            box-shadow: 0 10px 30px rgba(21, 185, 185, 0.1);
+        }
+
+        .content-section h2 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #15B9B9;
+            border-bottom: 2px solid rgba(21, 185, 185, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .content-section h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 30px 0 15px;
+            color: #FFFFFF;
+        }
+
+        .content-section h4 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 25px 0 12px;
+            color: #15B9B9;
+        }
+
+        .content-section p {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            color: #E3E1E1;
+        }
+
+        .content-section ul, .content-section ol {
+            margin-bottom: 20px;
+            padding-left: 30px;
+        }
+
+        .content-section li {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 8px;
+            color: #E3E1E1;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(21, 185, 185, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(21, 185, 185, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .feature-card h4 {
+            color: #15B9B9;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .code-block {
+            background: #2D2D2D;
+            border: 1px solid rgba(21, 185, 185, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: #E3E1E1;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .code-block code {
+            color: #15B9B9;
+        }
+
+        .architecture-diagram {
+            background: #2D2D2D;
+            border: 1px solid rgba(21, 185, 185, 0.3);
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .architecture-diagram pre {
+            color: #15B9B9;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            text-align: left;
+        }
+
+        .layer-card {
+            background: rgba(21, 185, 185, 0.1);
+            border: 1px solid rgba(21, 185, 185, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #15B9B9;
+        }
+
+        .layer-card h4 {
+            color: #15B9B9;
+            margin-bottom: 10px;
+        }
+
+        .principles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .principle-card {
+            background: rgba(60, 29, 255, 0.1);
+            border: 1px solid rgba(60, 29, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #3C1DFF;
+        }
+
+        .principle-card h4 {
+            color: #3C1DFF;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .blog-title {
+                font-size: 32px;
+            }
+
+            .blog-subtitle {
+                font-size: 16px;
+            }
+
+            .blog-meta {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            .content-section h2 {
+                font-size: 24px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1F1F1F;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #15B9B9;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Scroll Animations */
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="../../blogs.html" class="logo">Abanoub Magdy</a>
+                <ul class="nav-links" id="navLinks">                   
+                    <li><a href="../../blogs.html#blog">Blog</a></li>
+                    <li><a href="../../resume.html">Resume</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Blog Hero Section -->
+    <section class="blog-hero">
+        <div class="container">
+            <div class="blog-hero-content">
+                <h1 class="blog-title">Clean Architecture</h1>
+                <p class="blog-subtitle">Building Maintainable, Testable, and Framework-Independent Applications</p>
+                <div class="blog-meta">
+                    <span><i class="ion-calendar"></i> March 2025</span>
+                    <span><i class="ion-clock"></i> 25 min read</span>
+                    <span><i class="ion-person"></i> Abanoub Magdy</span>
+                </div>
+                <a href="../../blogs.html" class="back-btn">
+                    <i class="ion-ios-arrow-left"></i> Back to Blog
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Content -->
+    <section class="blog-content">
+        <div class="container">
+            <div class="blog-container">
+                <!-- Introduction -->
+                <div class="content-section scroll-animate">
+                    <h2>Understanding Clean Architecture</h2>
+                    <p>Clean Architecture, proposed by Robert C. Martin (Uncle Bob), is a software design philosophy that separates concerns into distinct layers, making systems more maintainable, testable, and independent of external dependencies.</p>
+                    
+                    <h3>Core Principles</h3>
+                    <ul>
+                        <li><strong>Independent of frameworks:</strong> Architecture doesn't depend on external libraries</li>
+                        <li><strong>Testable:</strong> Business rules can be tested without UI, database, or external elements</li>
+                        <li><strong>Independent of UI:</strong> UI can change without changing business rules</li>
+                        <li><strong>Independent of database:</strong> Business rules aren't bound to the database</li>
+                        <li><strong>Independent of external agencies:</strong> Business rules don't know about the outside world</li>
+                    </ul>
+
+                    <div class="architecture-diagram">
+                        <h4>The Clean Architecture Layers</h4>
+                        <pre>
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│                 ENTERPRISE BUSINESS RULES                   │
+│                                                             │
+│                    ┌─────────────────┐                     │
+│                    │                 │                     │
+│                    │    ENTITIES     │                     │
+│                    │                 │                     │
+│                    └─────────────────┘                     │
+│                           ▲                                 │
+│                           │                                 │
+│               APPLICATION BUSINESS RULES                    │
+│                           │                                 │
+│                    ┌─────────────────┐                     │
+│                    │                 │                     │
+│                    │   USE CASES     │                     │
+│                    │                 │                     │
+│                    └─────────────────┘                     │
+│                           ▲                                 │
+│                           │                                 │
+│               INTERFACE ADAPTERS                            │
+│                           │                                 │
+│          ┌─────────────────┼─────────────────┐             │
+│          │                 │                 │             │
+│          │   CONTROLLERS   │   PRESENTERS    │             │
+│          │                 │                 │             │
+│          └─────────────────┼─────────────────┘             │
+│                           ▲                                 │
+│                           │                                 │
+│               FRAMEWORKS & DRIVERS                          │
+│                           │                                 │
+│          ┌─────────────────┼─────────────────┐             │
+│          │                 │                 │             │
+│          │       UI        │    DATABASE     │             │
+│          │                 │                 │             │
+│          └─────────────────┼─────────────────┘             │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+                        </pre>
+                    </div>
+                </div>
+
+                <!-- Architecture Layers -->
+                <div class="content-section scroll-animate">
+                    <h2>Architecture Layers Explained</h2>
+                    
+                    <div class="layer-card">
+                        <h4>1. Entities (Enterprise Business Rules)</h4>
+                        <p>The innermost layer containing enterprise-wide business rules. These are the most stable and should rarely change.</p>
+                        <ul>
+                            <li>Core business objects</li>
+                            <li>Enterprise-wide business rules</li>
+                            <li>Most general and high-level rules</li>
+                            <li>Least likely to change when external changes occur</li>
+                        </ul>
+                    </div>
+
+                    <div class="layer-card">
+                        <h4>2. Use Cases (Application Business Rules)</h4>
+                        <p>Contains application-specific business rules. Orchestrates the flow of data to and from entities.</p>
+                        <ul>
+                            <li>Application-specific business rules</li>
+                            <li>Orchestrates data flow between entities</li>
+                            <li>Directs entities to use their enterprise-wide business rules</li>
+                            <li>Should not be affected by changes to UI, database, or frameworks</li>
+                        </ul>
+                    </div>
+
+                    <div class="layer-card">
+                        <h4>3. Interface Adapters</h4>
+                        <p>Converts data from the format most convenient for use cases and entities to the format most convenient for external agencies.</p>
+                        <ul>
+                            <li>Controllers, Gateways, Presenters</li>
+                            <li>Converts data between use cases and external systems</li>
+                            <li>Contains adapters for databases, web frameworks, etc.</li>
+                            <li>No code in this layer should know about the database or web framework</li>
+                        </ul>
+                    </div>
+
+                    <div class="layer-card">
+                        <h4>4. Frameworks and Drivers</h4>
+                        <p>The outermost layer consisting of frameworks and tools such as databases, web frameworks, etc.</p>
+                        <ul>
+                            <li>Database, Web Framework, UI</li>
+                            <li>External interfaces to the world</li>
+                            <li>Where all the details go</li>
+                            <li>Most volatile layer - changes frequently</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Implementation Example -->
+                <div class="content-section scroll-animate">
+                    <h2>Implementation Example: E-commerce System</h2>
+                    
+                    <h3>1. Entities Layer</h3>
+                    <div class="code-block">
+                        <pre><code>// Domain Entities
+public class Product
+{
+    public ProductId Id { get; private set; }
+    public string Name { get; private set; }
+    public Money Price { get; private set; }
+    public int StockQuantity { get; private set; }
+
+    public Product(ProductId id, string name, Money price, int stockQuantity)
+    {
+        Id = id ?? throw new ArgumentNullException(nameof(id));
+        Name = name ?? throw new ArgumentNullException(nameof(name));
+        Price = price ?? throw new ArgumentNullException(nameof(price));
+        StockQuantity = stockQuantity;
+    }
+
+    public bool IsInStock() => StockQuantity > 0;
+    
+    public void UpdateStock(int quantity)
+    {
+        if (StockQuantity + quantity < 0)
+            throw new InvalidOperationException("Insufficient stock");
+        
+        StockQuantity += quantity;
+    }
+}
+
+public class Order
+{
+    private readonly List&lt;OrderItem&gt; _items = new();
+    
+    public OrderId Id { get; private set; }
+    public CustomerId CustomerId { get; private set; }
+    public DateTime OrderDate { get; private set; }
+    public OrderStatus Status { get; private set; }
+    public IReadOnlyList&lt;OrderItem&gt; Items => _items.AsReadOnly();
+
+    public Money TotalAmount => _items.Sum(item => item.TotalPrice);
+
+    public void AddItem(Product product, int quantity)
+    {
+        if (Status != OrderStatus.Draft)
+            throw new InvalidOperationException("Cannot modify confirmed order");
+
+        var existingItem = _items.FirstOrDefault(i => i.ProductId == product.Id);
+        if (existingItem != null)
+        {
+            existingItem.UpdateQuantity(existingItem.Quantity + quantity);
+        }
+        else
+        {
+            _items.Add(new OrderItem(product.Id, product.Price, quantity));
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>2. Use Cases Layer</h3>
+                    <div class="code-block">
+                        <pre><code>// Use Case Interface
+public interface IPlaceOrderUseCase
+{
+    Task&lt;PlaceOrderResponse&gt; ExecuteAsync(PlaceOrderRequest request);
+}
+
+// Use Case Implementation
+public class PlaceOrderUseCase : IPlaceOrderUseCase
+{
+    private readonly IOrderRepository _orderRepository;
+    private readonly IProductRepository _productRepository;
+    private readonly IPaymentService _paymentService;
+    private readonly IInventoryService _inventoryService;
+
+    public PlaceOrderUseCase(
+        IOrderRepository orderRepository,
+        IProductRepository productRepository,
+        IPaymentService paymentService,
+        IInventoryService inventoryService)
+    {
+        _orderRepository = orderRepository;
+        _productRepository = productRepository;
+        _paymentService = paymentService;
+        _inventoryService = inventoryService;
+    }
+
+    public async Task&lt;PlaceOrderResponse&gt; ExecuteAsync(PlaceOrderRequest request)
+    {
+        // Validate request
+        if (request.Items == null || !request.Items.Any())
+            throw new ArgumentException("Order must contain at least one item");
+
+        // Create order
+        var order = new Order(
+            OrderId.New(),
+            new CustomerId(request.CustomerId),
+            DateTime.UtcNow,
+            OrderStatus.Draft);
+
+        // Add items and check stock
+        foreach (var item in request.Items)
+        {
+            var product = await _productRepository.GetByIdAsync(new ProductId(item.ProductId));
+            if (product == null)
+                throw new ProductNotFoundException(item.ProductId);
+
+            if (!await _inventoryService.IsAvailableAsync(product.Id, item.Quantity))
+                throw new InsufficientStockException(product.Id, item.Quantity);
+
+            order.AddItem(product, item.Quantity);
+        }
+
+        // Process payment
+        var paymentResult = await _paymentService.ProcessPaymentAsync(
+            new PaymentRequest(order.TotalAmount, request.PaymentMethod));
+
+        if (!paymentResult.IsSuccessful)
+            throw new PaymentFailedException(paymentResult.ErrorMessage);
+
+        // Reserve inventory
+        foreach (var item in order.Items)
+        {
+            await _inventoryService.ReserveAsync(item.ProductId, item.Quantity);
+        }
+
+        // Confirm order
+        order.Confirm();
+        await _orderRepository.SaveAsync(order);
+
+        return new PlaceOrderResponse(order.Id.Value, order.TotalAmount.Amount);
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>3. Interface Adapters Layer</h3>
+                    <div class="code-block">
+                        <pre><code>// Repository Interface (in Use Cases layer)
+public interface IOrderRepository
+{
+    Task&lt;Order&gt; GetByIdAsync(OrderId id);
+    Task SaveAsync(Order order);
+}
+
+// Repository Implementation (in Interface Adapters layer)
+public class SqlOrderRepository : IOrderRepository
+{
+    private readonly ApplicationDbContext _context;
+
+    public SqlOrderRepository(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task&lt;Order&gt; GetByIdAsync(OrderId id)
+    {
+        var orderEntity = await _context.Orders
+            .Include(o => o.Items)
+            .FirstOrDefaultAsync(o => o.Id == id.Value);
+
+        return orderEntity?.ToDomainModel();
+    }
+
+    public async Task SaveAsync(Order order)
+    {
+        var orderEntity = OrderEntity.FromDomainModel(order);
+        
+        if (await _context.Orders.AnyAsync(o => o.Id == orderEntity.Id))
+        {
+            _context.Orders.Update(orderEntity);
+        }
+        else
+        {
+            _context.Orders.Add(orderEntity);
+        }
+
+        await _context.SaveChangesAsync();
+    }
+}
+
+// Controller (in Interface Adapters layer)
+[ApiController]
+[Route("api/[controller]")]
+public class OrdersController : ControllerBase
+{
+    private readonly IPlaceOrderUseCase _placeOrderUseCase;
+
+    public OrdersController(IPlaceOrderUseCase placeOrderUseCase)
+    {
+        _placeOrderUseCase = placeOrderUseCase;
+    }
+
+    [HttpPost]
+    public async Task&lt;IActionResult&gt; PlaceOrder([FromBody] PlaceOrderRequestDto request)
+    {
+        try
+        {
+            var useCaseRequest = new PlaceOrderRequest(
+                request.CustomerId,
+                request.Items.Select(i => new OrderItemRequest(i.ProductId, i.Quantity)),
+                request.PaymentMethod);
+
+            var response = await _placeOrderUseCase.ExecuteAsync(useCaseRequest);
+            
+            return Ok(new PlaceOrderResponseDto(response.OrderId, response.TotalAmount));
+        }
+        catch (ProductNotFoundException ex)
+        {
+            return NotFound($"Product {ex.ProductId} not found");
+        }
+        catch (InsufficientStockException ex)
+        {
+            return BadRequest($"Insufficient stock for product {ex.ProductId}");
+        }
+        catch (PaymentFailedException ex)
+        {
+            return BadRequest($"Payment failed: {ex.Message}");
+        }
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- SOLID Principles -->
+                <div class="content-section scroll-animate">
+                    <h2>SOLID Principles in Clean Architecture</h2>
+                    
+                    <div class="principles-grid">
+                        <div class="principle-card">
+                            <h4>Single Responsibility</h4>
+                            <p>Each layer has a single reason to change. Entities change for business reasons, use cases for application reasons, etc.</p>
+                        </div>
+                        <div class="principle-card">
+                            <h4>Open/Closed</h4>
+                            <p>Software entities are open for extension but closed for modification. New features are added by extending, not modifying existing code.</p>
+                        </div>
+                        <div class="principle-card">
+                            <h4>Liskov Substitution</h4>
+                            <p>Objects of a superclass should be replaceable with objects of its subclasses without breaking the application.</p>
+                        </div>
+                        <div class="principle-card">
+                            <h4>Interface Segregation</h4>
+                            <p>Many client-specific interfaces are better than one general-purpose interface. Clients shouldn't depend on interfaces they don't use.</p>
+                        </div>
+                        <div class="principle-card">
+                            <h4>Dependency Inversion</h4>
+                            <p>Depend on abstractions, not concretions. High-level modules shouldn't depend on low-level modules.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dependency Injection -->
+                <div class="content-section scroll-animate">
+                    <h2>Dependency Injection Setup</h2>
+                    
+                    <div class="code-block">
+                        <pre><code>// Program.cs - Dependency Registration
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
+
+        // Register services by layer
+        RegisterInfrastructureServices(builder.Services, builder.Configuration);
+        RegisterApplicationServices(builder.Services);
+        RegisterPresentationServices(builder.Services);
+
+        var app = builder.Build();
+        
+        // Configure pipeline
+        ConfigurePipeline(app);
+        
+        app.Run();
+    }
+
+    private static void RegisterInfrastructureServices(IServiceCollection services, IConfiguration configuration)
+    {
+        // Database
+        services.AddDbContext&lt;ApplicationDbContext&gt;(options =>
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+        // Repositories
+        services.AddScoped&lt;IOrderRepository, SqlOrderRepository&gt;();
+        services.AddScoped&lt;IProductRepository, SqlProductRepository&gt;();
+        
+        // External services
+        services.AddScoped&lt;IPaymentService, StripePaymentService&gt;();
+        services.AddScoped&lt;IInventoryService, InventoryService&gt;();
+    }
+
+    private static void RegisterApplicationServices(IServiceCollection services)
+    {
+        // Use cases
+        services.AddScoped&lt;IPlaceOrderUseCase, PlaceOrderUseCase&gt;();
+        services.AddScoped&lt;IGetOrderUseCase, GetOrderUseCase&gt;();
+        services.AddScoped&lt;ICancelOrderUseCase, CancelOrderUseCase&gt;();
+    }
+
+    private static void RegisterPresentationServices(IServiceCollection services)
+    {
+        services.AddControllers();
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen();
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Testing Strategy -->
+                <div class="content-section scroll-animate">
+                    <h2>Testing in Clean Architecture</h2>
+                    
+                    <h3>Unit Testing Use Cases</h3>
+                    <div class="code-block">
+                        <pre><code>[TestClass]
+public class PlaceOrderUseCaseTests
+{
+    private Mock&lt;IOrderRepository&gt; _orderRepositoryMock;
+    private Mock&lt;IProductRepository&gt; _productRepositoryMock;
+    private Mock&lt;IPaymentService&gt; _paymentServiceMock;
+    private Mock&lt;IInventoryService&gt; _inventoryServiceMock;
+    private PlaceOrderUseCase _useCase;
+
+    [TestInitialize]
+    public void Setup()
+    {
+        _orderRepositoryMock = new Mock&lt;IOrderRepository&gt;();
+        _productRepositoryMock = new Mock&lt;IProductRepository&gt;();
+        _paymentServiceMock = new Mock&lt;IPaymentService&gt;();
+        _inventoryServiceMock = new Mock&lt;IInventoryService&gt;();
+        
+        _useCase = new PlaceOrderUseCase(
+            _orderRepositoryMock.Object,
+            _productRepositoryMock.Object,
+            _paymentServiceMock.Object,
+            _inventoryServiceMock.Object);
+    }
+
+    [TestMethod]
+    public async Task ExecuteAsync_ValidOrder_ReturnsSuccessResponse()
+    {
+        // Arrange
+        var productId = new ProductId(Guid.NewGuid());
+        var product = new Product(productId, "Test Product", new Money(10.00m), 5);
+        
+        _productRepositoryMock.Setup(r => r.GetByIdAsync(productId))
+            .ReturnsAsync(product);
+        
+        _inventoryServiceMock.Setup(s => s.IsAvailableAsync(productId, 2))
+            .ReturnsAsync(true);
+        
+        _paymentServiceMock.Setup(s => s.ProcessPaymentAsync(It.IsAny&lt;PaymentRequest&gt;()))
+            .ReturnsAsync(new PaymentResult { IsSuccessful = true });
+
+        var request = new PlaceOrderRequest(
+            Guid.NewGuid(),
+            new[] { new OrderItemRequest(productId.Value, 2) },
+            "CreditCard");
+
+        // Act
+        var response = await _useCase.ExecuteAsync(request);
+
+        // Assert
+        Assert.IsNotNull(response);
+        Assert.AreEqual(20.00m, response.TotalAmount);
+        _orderRepositoryMock.Verify(r => r.SaveAsync(It.IsAny&lt;Order&gt;()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ExecuteAsync_InsufficientStock_ThrowsException()
+    {
+        // Arrange
+        var productId = new ProductId(Guid.NewGuid());
+        var product = new Product(productId, "Test Product", new Money(10.00m), 1);
+        
+        _productRepositoryMock.Setup(r => r.GetByIdAsync(productId))
+            .ReturnsAsync(product);
+        
+        _inventoryServiceMock.Setup(s => s.IsAvailableAsync(productId, 5))
+            .ReturnsAsync(false);
+
+        var request = new PlaceOrderRequest(
+            Guid.NewGuid(),
+            new[] { new OrderItemRequest(productId.Value, 5) },
+            "CreditCard");
+
+        // Act & Assert
+        await Assert.ThrowsExceptionAsync&lt;InsufficientStockException&gt;(
+            () => _useCase.ExecuteAsync(request));
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>Integration Testing</h3>
+                    <div class="code-block">
+                        <pre><code>[TestClass]
+public class OrdersControllerIntegrationTests
+{
+    private WebApplicationFactory&lt;Program&gt; _factory;
+    private HttpClient _client;
+
+    [TestInitialize]
+    public void Setup()
+    {
+        _factory = new WebApplicationFactory&lt;Program&gt;()
+            .WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    // Replace database with in-memory database
+                    services.RemoveAll(typeof(DbContextOptions&lt;ApplicationDbContext&gt;));
+                    services.AddDbContext&lt;ApplicationDbContext&gt;(options =>
+                        options.UseInMemoryDatabase("TestDb"));
+                });
+            });
+
+        _client = _factory.CreateClient();
+    }
+
+    [TestMethod]
+    public async Task PlaceOrder_ValidRequest_ReturnsOk()
+    {
+        // Arrange
+        var request = new PlaceOrderRequestDto
+        {
+            CustomerId = Guid.NewGuid(),
+            Items = new[]
+            {
+                new OrderItemRequestDto { ProductId = Guid.NewGuid(), Quantity = 2 }
+            },
+            PaymentMethod = "CreditCard"
+        };
+
+        var json = JsonSerializer.Serialize(request);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        // Act
+        var response = await _client.PostAsync("/api/orders", content);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Benefits and Drawbacks -->
+                <div class="content-section scroll-animate">
+                    <h2>Benefits and Considerations</h2>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>✅ Benefits</h4>
+                            <ul>
+                                <li>Highly testable and maintainable</li>
+                                <li>Independent of frameworks and databases</li>
+                                <li>Clear separation of concerns</li>
+                                <li>Supports multiple interfaces (web, mobile, CLI)</li>
+                                <li>Business logic is protected from external changes</li>
+                                <li>Enables parallel development</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4>⚠️ Considerations</h4>
+                            <ul>
+                                <li>Initial complexity and learning curve</li>
+                                <li>More files and abstractions</li>
+                                <li>May be overkill for simple applications</li>
+                                <li>Requires discipline to maintain boundaries</li>
+                                <li>Can lead to over-engineering</li>
+                                <li>Performance overhead from abstractions</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Best Practices -->
+                <div class="content-section scroll-animate">
+                    <h2>Best Practices</h2>
+                    
+                    <h3>1. Maintain Layer Boundaries</h3>
+                    <ul>
+                        <li>Inner layers should never depend on outer layers</li>
+                        <li>Use dependency inversion to maintain direction</li>
+                        <li>Keep business logic in the core layers</li>
+                        <li>Avoid leaking infrastructure concerns into business logic</li>
+                    </ul>
+
+                    <h3>2. Design for Testability</h3>
+                    <ul>
+                        <li>Use interfaces for external dependencies</li>
+                        <li>Keep use cases focused and single-purpose</li>
+                        <li>Avoid static dependencies</li>
+                        <li>Make entities behavior-rich, not anemic</li>
+                    </ul>
+
+                    <h3>3. Start Simple</h3>
+                    <ul>
+                        <li>Don't over-engineer from the beginning</li>
+                        <li>Add layers as complexity grows</li>
+                        <li>Focus on the most important business rules first</li>
+                        <li>Refactor towards clean architecture gradually</li>
+                    </ul>
+
+                    <h3>4. Use Domain-Driven Design</h3>
+                    <ul>
+                        <li>Model the business domain accurately</li>
+                        <li>Use ubiquitous language</li>
+                        <li>Keep related logic together in aggregates</li>
+                        <li>Protect business invariants</li>
+                    </ul>
+                </div>
+
+                <!-- Conclusion -->
+                <div class="content-section scroll-animate">
+                    <h2>Conclusion</h2>
+                    <p>Clean Architecture provides a robust foundation for building maintainable, testable, and flexible applications. While it introduces initial complexity, the long-term benefits of separation of concerns, testability, and independence from external dependencies make it valuable for complex business applications.</p>
+                    
+                    <p>The key to successful implementation is understanding that Clean Architecture is not about rigid rules, but about principles that guide good design decisions. Start with the core business logic, build outward, and always maintain the dependency rule: dependencies point inward, toward the business logic.</p>
+
+                    <p>Remember that architecture is a means to an end - delivering value to users. Use Clean Architecture when it helps achieve that goal, and adapt it to your specific context and constraints.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Loading Screen
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+            }, 1000);
+        });
+
+        // Scroll Animations
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.scroll-animate');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        // Header Background on Scroll
+        function updateHeader() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(31, 31, 31, 0.98)';
+            } else {
+                header.style.background = 'rgba(31, 31, 31, 0.95)';
+            }
+        }
+
+        // Event Listeners
+        window.addEventListener('scroll', () => {
+            updateHeader();
+            animateOnScroll();
+        });
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', () => {
+            animateOnScroll();
+        });
+    </script>
+</body>
+</html> 

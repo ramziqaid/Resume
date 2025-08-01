@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASP.NET Core Identity - Abanoub Magdy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Alex+Brush&family=Questrial&display=swap" rel="stylesheet">
+    <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #1F1F1F;
+            color: #FFFFFF;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(31, 31, 31, 0.95);
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(21, 185, 185, 0.2);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo {
+            font-family: 'Alex Brush', cursive;
+            font-size: 26px;
+            color: #FFFFFF;
+            text-decoration: none;
+            background: linear-gradient(135deg, #ebffff, #6c5dcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #989898;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #15B9B9, #3C1DFF);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #15B9B9;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        /* Blog Hero Section */
+        .blog-hero {
+            padding: 120px 0 80px;
+            background: linear-gradient(135deg, rgba(21, 185, 185, 0.1) 0%, rgba(60, 29, 255, 0.1) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(21, 185, 185, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(60, 29, 255, 0.15) 0%, transparent 50%);
+            animation: heroFloat 25s ease-in-out infinite;
+        }
+
+        @keyframes heroFloat {
+            0%, 100% { transform: translateX(0px) translateY(0px) rotate(0deg); }
+            25% { transform: translateX(-15px) translateY(-20px) rotate(45deg); }
+            50% { transform: translateX(15px) translateY(-10px) rotate(90deg); }
+            75% { transform: translateX(-8px) translateY(-15px) rotate(135deg); }
+        }
+
+        .blog-hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .blog-title {
+            font-size: 48px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #FFFFFF, #E3E1E1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .blog-subtitle {
+            font-size: 20px;
+            color: #15B9B9;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .blog-meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .blog-meta span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #E3E1E1;
+            font-size: 14px;
+        }
+
+        .blog-meta i {
+            color: #15B9B9;
+            font-size: 16px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(21, 185, 185, 0.2), rgba(60, 29, 255, 0.2));
+            color: #15B9B9;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(21, 185, 185, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, rgba(21, 185, 185, 0.3), rgba(60, 29, 255, 0.3));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(21, 185, 185, 0.2);
+            color: #15B9B9;
+            text-decoration: none;
+        }
+
+        /* Blog Content */
+        .blog-content {
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .blog-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .content-section {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(21, 185, 185, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+        }
+
+        .content-section:hover {
+            border-color: rgba(21, 185, 185, 0.4);
+            box-shadow: 0 10px 30px rgba(21, 185, 185, 0.1);
+        }
+
+        .content-section h2 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #15B9B9;
+            border-bottom: 2px solid rgba(21, 185, 185, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .content-section h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 30px 0 15px;
+            color: #FFFFFF;
+        }
+
+        .content-section h4 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 25px 0 12px;
+            color: #15B9B9;
+        }
+
+        .content-section p {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            color: #E3E1E1;
+        }
+
+        .content-section ul, .content-section ol {
+            margin-bottom: 20px;
+            padding-left: 30px;
+        }
+
+        .content-section li {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 8px;
+            color: #E3E1E1;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(21, 185, 185, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(21, 185, 185, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .feature-card h4 {
+            color: #15B9B9;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .code-block {
+            background: #2D2D2D;
+            border: 1px solid rgba(21, 185, 185, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: #E3E1E1;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .code-block code {
+            color: #15B9B9;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .blog-title {
+                font-size: 32px;
+            }
+
+            .blog-subtitle {
+                font-size: 16px;
+            }
+
+            .blog-meta {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            .content-section h2 {
+                font-size: 24px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1F1F1F;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #15B9B9;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Scroll Animations */
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="../../blogs.html" class="logo">Abanoub Magdy</a>
+                <ul class="nav-links" id="navLinks">                   
+                    <li><a href="../../blogs.html#blog">Blog</a></li>
+                    <li><a href="../../resume.html">Resume</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Blog Hero Section -->
+    <section class="blog-hero">
+        <div class="container">
+            <div class="blog-hero-content">
+                <h1 class="blog-title">ASP.NET Core Identity</h1>
+                <p class="blog-subtitle">Complete Guide to User Authentication and Authorization</p>
+                <div class="blog-meta">
+                    <span><i class="ion-calendar"></i> November 2024</span>
+                    <span><i class="ion-clock"></i> 20 min read</span>
+                    <span><i class="ion-person"></i> Abanoub Magdy</span>
+                </div>
+                <a href="../../blogs.html" class="back-btn">
+                    <i class="ion-ios-arrow-left"></i> Back to Blog
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Content -->
+    <section class="blog-content">
+        <div class="container">
+            <div class="blog-container">
+                <!-- Introduction -->
+                <div class="content-section scroll-animate">
+                    <h2>Introduction</h2>
+                    <p>ASP.NET Core Identity is a comprehensive membership system that provides authentication and authorization functionality for web applications. This guide covers everything you need to know to implement secure user management in your ASP.NET Core applications.</p>
+                    
+                    <h3>What is ASP.NET Core Identity?</h3>
+                    <p>ASP.NET Core Identity is a framework that provides:</p>
+                    <ul>
+                        <li>User account creation and management</li>
+                        <li>Password hashing and validation</li>
+                        <li>Role-based authorization</li>
+                        <li>Claims-based identity</li>
+                        <li>Two-factor authentication</li>
+                        <li>External login providers (Google, Facebook, etc.)</li>
+                        <li>Account lockout and security features</li>
+                    </ul>
+                </div>
+
+                <!-- Setup and Configuration -->
+                <div class="content-section scroll-animate">
+                    <h2>Setup and Configuration</h2>
+                    
+                    <h3>1. Install Required Packages</h3>
+                    <div class="code-block">
+                        <pre><code>dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools</code></pre>
+                    </div>
+
+                    <h3>2. Create Identity DbContext</h3>
+                    <div class="code-block">
+                        <pre><code>public class ApplicationDbContext : IdentityDbContext&lt;IdentityUser&gt;
+{
+    public ApplicationDbContext(DbContextOptions&lt;ApplicationDbContext&gt; options)
+        : base(options)
+    {
+    }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+        // Customize Identity tables if needed
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>3. Configure Services</h3>
+                    <div class="code-block">
+                        <pre><code>// In Program.cs
+builder.Services.AddDbContext&lt;ApplicationDbContext&gt;(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddIdentity&lt;IdentityUser, IdentityRole&gt;(options =>
+{
+    // Password settings
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 6;
+    
+    // Lockout settings
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+    
+    // User settings
+    options.User.AllowedUserNameCharacters = 
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+    options.User.RequireUniqueEmail = false;
+})
+.AddEntityFrameworkStores&lt;ApplicationDbContext&gt;()
+.AddDefaultTokenProviders();
+
+app.UseAuthentication();
+app.UseAuthorization();</code></pre>
+                    </div>
+                </div>
+
+                <!-- User Registration -->
+                <div class="content-section scroll-animate">
+                    <h2>User Registration</h2>
+                    
+                    <h3>Registration Controller</h3>
+                    <div class="code-block">
+                        <pre><code>[HttpPost]
+public async Task&lt;IActionResult&gt; Register(RegisterViewModel model)
+{
+    if (ModelState.IsValid)
+    {
+        var user = new IdentityUser 
+        { 
+            UserName = model.Email, 
+            Email = model.Email 
+        };
+        
+        var result = await _userManager.CreateAsync(user, model.Password);
+        
+        if (result.Succeeded)
+        {
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            return RedirectToAction("Index", "Home");
+        }
+        
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+    }
+    
+    return View(model);
+}</code></pre>
+                    </div>
+
+                    <h3>Registration View Model</h3>
+                    <div class="code-block">
+                        <pre><code>public class RegisterViewModel
+{
+    [Required]
+    [EmailAddress]
+    [Display(Name = "Email")]
+    public string Email { get; set; }
+
+    [Required]
+    [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+    [DataType(DataType.Password)]
+    [Display(Name = "Password")]
+    public string Password { get; set; }
+
+    [DataType(DataType.Password)]
+    [Display(Name = "Confirm password")]
+    [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+    public string ConfirmPassword { get; set; }
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- User Authentication -->
+                <div class="content-section scroll-animate">
+                    <h2>User Authentication</h2>
+                    
+                    <h3>Login Implementation</h3>
+                    <div class="code-block">
+                        <pre><code>[HttpPost]
+public async Task&lt;IActionResult&gt; Login(LoginViewModel model, string returnUrl = null)
+{
+    ViewData["ReturnUrl"] = returnUrl;
+    
+    if (ModelState.IsValid)
+    {
+        var result = await _signInManager.PasswordSignInAsync(
+            model.Email, 
+            model.Password, 
+            model.RememberMe, 
+            lockoutOnFailure: false);
+            
+        if (result.Succeeded)
+        {
+            return RedirectToLocal(returnUrl);
+        }
+        
+        if (result.RequiresTwoFactor)
+        {
+            return RedirectToAction(nameof(LoginWith2fa), 
+                new { returnUrl, model.RememberMe });
+        }
+        
+        if (result.IsLockedOut)
+        {
+            return RedirectToAction(nameof(Lockout));
+        }
+        else
+        {
+            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            return View(model);
+        }
+    }
+    
+    return View(model);
+}</code></pre>
+                    </div>
+
+                    <h3>Logout Implementation</h3>
+                    <div class="code-block">
+                        <pre><code>[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task&lt;IActionResult&gt; Logout()
+{
+    await _signInManager.SignOutAsync();
+    return RedirectToAction(nameof(HomeController.Index), "Home");
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Role-Based Authorization -->
+                <div class="content-section scroll-animate">
+                    <h2>Role-Based Authorization</h2>
+                    
+                    <h3>Creating Roles</h3>
+                    <div class="code-block">
+                        <pre><code>public async Task CreateRoles(IServiceProvider serviceProvider)
+{
+    var roleManager = serviceProvider.GetRequiredService&lt;RoleManager&lt;IdentityRole&gt;&gt;();
+    var userManager = serviceProvider.GetRequiredService&lt;UserManager&lt;IdentityUser&gt;&gt;();
+    
+    string[] roleNames = { "Admin", "Manager", "User" };
+    IdentityResult roleResult;
+    
+    foreach (var roleName in roleNames)
+    {
+        var roleExist = await roleManager.RoleExistsAsync(roleName);
+        if (!roleExist)
+        {
+            roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
+        }
+    }
+    
+    // Create a super user
+    var powerUser = new IdentityUser
+    {
+        UserName = "admin@example.com",
+        Email = "admin@example.com",
+    };
+    
+    string userPassword = "Admin123!";
+    var user = await userManager.FindByEmailAsync("admin@example.com");
+    
+    if (user == null)
+    {
+        var createPowerUser = await userManager.CreateAsync(powerUser, userPassword);
+        if (createPowerUser.Succeeded)
+        {
+            await userManager.AddToRoleAsync(powerUser, "Admin");
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>Using Authorization Attributes</h3>
+                    <div class="code-block">
+                        <pre><code>// Require authentication
+[Authorize]
+public class HomeController : Controller
+{
+    // Actions require authentication
+}
+
+// Require specific role
+[Authorize(Roles = "Admin")]
+public IActionResult AdminOnly()
+{
+    return View();
+}
+
+// Require multiple roles
+[Authorize(Roles = "Admin,Manager")]
+public IActionResult AdminOrManager()
+{
+    return View();
+}
+
+// Require all roles
+[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Manager")]
+public IActionResult AdminAndManager()
+{
+    return View();
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Claims-Based Authorization -->
+                <div class="content-section scroll-animate">
+                    <h2>Claims-Based Authorization</h2>
+                    
+                    <h3>Adding Claims to Users</h3>
+                    <div class="code-block">
+                        <pre><code>// Add claims to a user
+var user = await _userManager.FindByEmailAsync("user@example.com");
+var claims = new List&lt;Claim&gt;
+{
+    new Claim("CanEdit", "true"),
+    new Claim("Department", "IT"),
+    new Claim("EmployeeNumber", "12345")
+};
+
+await _userManager.AddClaimsAsync(user, claims);</code></pre>
+                    </div>
+
+                    <h3>Policy-Based Authorization</h3>
+                    <div class="code-block">
+                        <pre><code>// In Program.cs
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CanEdit", policy =>
+        policy.RequireClaim("CanEdit", "true"));
+        
+    options.AddPolicy("ITDepartment", policy =>
+        policy.RequireClaim("Department", "IT"));
+        
+    options.AddPolicy("AdminOrManager", policy =>
+        policy.RequireRole("Admin", "Manager"));
+});
+
+// In controller
+[Authorize(Policy = "CanEdit")]
+public IActionResult EditData()
+{
+    return View();
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Two-Factor Authentication -->
+                <div class="content-section scroll-animate">
+                    <h2>Two-Factor Authentication</h2>
+                    
+                    <h3>Enable 2FA for User</h3>
+                    <div class="code-block">
+                        <pre><code>public async Task&lt;IActionResult&gt; EnableTwoFactorAuthentication()
+{
+    var user = await _userManager.GetUserAsync(User);
+    if (user != null)
+    {
+        await _userManager.SetTwoFactorEnabledAsync(user, true);
+        
+        // Generate QR code for authenticator app
+        var unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
+        if (string.IsNullOrEmpty(unformattedKey))
+        {
+            await _userManager.ResetAuthenticatorKeyAsync(user);
+            unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
+        }
+        
+        var model = new EnableAuthenticatorViewModel
+        {
+            SharedKey = FormatKey(unformattedKey),
+            AuthenticatorUri = GenerateQrCodeUri(user.Email, unformattedKey)
+        };
+        
+        return View(model);
+    }
+    
+    return RedirectToAction("Index");
+}</code></pre>
+                    </div>
+
+                    <h3>2FA Login Process</h3>
+                    <div class="code-block">
+                        <pre><code>[HttpPost]
+public async Task&lt;IActionResult&gt; LoginWith2fa(LoginWith2faViewModel model, bool rememberMe, string returnUrl = null)
+{
+    if (!ModelState.IsValid)
+    {
+        return View(model);
+    }
+    
+    var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+    if (user == null)
+    {
+        throw new InvalidOperationException("Unable to load two-factor authentication user.");
+    }
+    
+    var authenticatorCode = model.TwoFactorCode.Replace(" ", string.Empty).Replace("-", string.Empty);
+    
+    var result = await _signInManager.TwoFactorAuthenticatorSignInAsync(
+        authenticatorCode, 
+        rememberMe, 
+        model.RememberMachine);
+        
+    if (result.Succeeded)
+    {
+        return RedirectToLocal(returnUrl);
+    }
+    else if (result.IsLockedOut)
+    {
+        return RedirectToAction(nameof(Lockout));
+    }
+    else
+    {
+        ModelState.AddModelError(string.Empty, "Invalid authenticator code.");
+        return View();
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- External Login Providers -->
+                <div class="content-section scroll-animate">
+                    <h2>External Login Providers</h2>
+                    
+                    <h3>Configure Google Authentication</h3>
+                    <div class="code-block">
+                        <pre><code>// Install package: Microsoft.AspNetCore.Authentication.Google
+
+// In Program.cs
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    });</code></pre>
+                    </div>
+
+                    <h3>Handle External Login</h3>
+                    <div class="code-block">
+                        <pre><code>[HttpPost]
+[AllowAnonymous]
+[ValidateAntiForgeryToken]
+public IActionResult ExternalLogin(string provider, string returnUrl = null)
+{
+    var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
+    var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+    return Challenge(properties, provider);
+}
+
+[HttpGet]
+[AllowAnonymous]
+public async Task&lt;IActionResult&gt; ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+{
+    if (remoteError != null)
+    {
+        ModelState.AddModelError(string.Empty, $"Error from external provider: {remoteError}");
+        return View(nameof(Login));
+    }
+    
+    var info = await _signInManager.GetExternalLoginInfoAsync();
+    if (info == null)
+    {
+        return RedirectToAction(nameof(Login));
+    }
+    
+    var result = await _signInManager.ExternalLoginSignInAsync(
+        info.LoginProvider, 
+        info.ProviderKey, 
+        isPersistent: false, 
+        bypassTwoFactor: true);
+        
+    if (result.Succeeded)
+    {
+        return RedirectToLocal(returnUrl);
+    }
+    
+    // If the user does not have an account, create one
+    var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+    var user = new IdentityUser { UserName = email, Email = email };
+    
+    var createResult = await _userManager.CreateAsync(user);
+    if (createResult.Succeeded)
+    {
+        createResult = await _userManager.AddLoginAsync(user, info);
+        if (createResult.Succeeded)
+        {
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            return RedirectToLocal(returnUrl);
+        }
+    }
+    
+    return View("ExternalLoginFailure");
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Best Practices -->
+                <div class="content-section scroll-animate">
+                    <h2>Security Best Practices</h2>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Password Security</h4>
+                            <ul>
+                                <li>Enforce strong password policies</li>
+                                <li>Use password hashing (automatic in Identity)</li>
+                                <li>Implement password history</li>
+                                <li>Consider password-less authentication</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Account Protection</h4>
+                            <ul>
+                                <li>Enable account lockout</li>
+                                <li>Implement rate limiting</li>
+                                <li>Use CAPTCHA for registration</li>
+                                <li>Monitor suspicious activities</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Session Management</h4>
+                            <ul>
+                                <li>Use secure cookies</li>
+                                <li>Implement session timeout</li>
+                                <li>Secure session storage</li>
+                                <li>Handle concurrent sessions</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Data Protection</h4>
+                            <ul>
+                                <li>Use HTTPS everywhere</li>
+                                <li>Implement CSRF protection</li>
+                                <li>Sanitize user inputs</li>
+                                <li>Encrypt sensitive data</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conclusion -->
+                <div class="content-section scroll-animate">
+                    <h2>Conclusion</h2>
+                    <p>ASP.NET Core Identity provides a robust foundation for implementing authentication and authorization in your web applications. By following the patterns and best practices outlined in this guide, you can build secure, scalable user management systems.</p>
+                    
+                    <h3>Key Takeaways</h3>
+                    <ul>
+                        <li>Always use HTTPS in production environments</li>
+                        <li>Implement proper password policies and account lockout</li>
+                        <li>Use role-based and claims-based authorization appropriately</li>
+                        <li>Consider implementing two-factor authentication for sensitive applications</li>
+                        <li>Regularly audit and update your security practices</li>
+                        <li>Test your authentication and authorization logic thoroughly</li>
+                    </ul>
+
+                    <p>Remember that security is an ongoing process, not a one-time implementation. Stay updated with the latest security practices and regularly review your authentication and authorization implementations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Loading Screen
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+            }, 1000);
+        });
+
+        // Scroll Animations
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.scroll-animate');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        // Header Background on Scroll
+        function updateHeader() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(31, 31, 31, 0.98)';
+            } else {
+                header.style.background = 'rgba(31, 31, 31, 0.95)';
+            }
+        }
+
+        // Event Listeners
+        window.addEventListener('scroll', () => {
+            updateHeader();
+            animateOnScroll();
+        });
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', () => {
+            animateOnScroll();
+        });
+    </script>
+</body>
+</html> 
